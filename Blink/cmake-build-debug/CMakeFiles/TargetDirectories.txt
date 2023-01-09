@@ -1,3 +1,0 @@
-/home/mahmoud/code/Nucleo-L432kc/Blink/cmake-build-debug/CMakeFiles/Blink.dir
-/home/mahmoud/code/Nucleo-L432kc/Blink/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/mahmoud/code/Nucleo-L432kc/Blink/cmake-build-debug/CMakeFiles/rebuild_cache.dir
