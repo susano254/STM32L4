@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"*.asm": "mips",
+		"*.s": "arm",
+		"spi.h": "c"
+	}
+}

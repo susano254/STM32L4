@@ -1,26 +1,5 @@
 #include <GPIO.h>
-#include <RCC.h>
 
-
-int main(){
-	gpio_pin_conf_t led;
-	led.pin = A1;
-	led.mode = GPIO_PIN_OUTPUT_MODE;
-	led.op_type = GPIO_PIN_OP_TYPE_PUSH_PULL;
-	led.speed = GPIO_PIN_OSPEED_LOW;
-	led.alternate_function = -1;
-
-	RCC_GPIOA_CLK_ENABLE();
-	gpio_init(GPIOA, &led);
-
-	uint32_t state = GPIO_OUTPUT_LOW; 
-	while(1){
-		for(int i = 0; i < 100000; i++);
-		gpio_write_pin(GPIOA, led.pin, state);
-		state = !state;
-	}
-	return 0;
-}
 
 
 uint8_t gpio_read_pin(GPIO_TypeDef *GPIOx, uint8_t pin){
@@ -51,7 +30,11 @@ static void gpio_configure_pin_ospeed(GPIO_TypeDef *GPIOx, uint8_t pin, uint32_t
 }
 static void gpio_configure_pin_pupd(GPIO_TypeDef *GPIOx, uint8_t pin, uint32_t pupd){
 	GPIOx->PUPDR &= ~(3 << (pin * 2));
-	GPIOx->PUPDR |= (pupd << (pin * 2));
+
+	if(pupd == GPIO_PIN_PUPD_PULL_UP || pupd == GPIO_PIN_PUPD_PULL_DOWN)
+		GPIOx->PUPDR |= (pupd << (pin * 2));
+	else
+		GPIOx->PUPDR |= (GPIO_PIN_PUPD_NO_PUPD << (pin * 2));
 }
 
 void gpio_init(GPIO_TypeDef* GPIOx, gpio_pin_conf_t* pin_conf){
@@ -60,6 +43,8 @@ void gpio_init(GPIO_TypeDef* GPIOx, gpio_pin_conf_t* pin_conf){
 	//configure the output type
 	gpio_configure_pin_otype(GPIOx, pin_conf->pin, pin_conf->op_type);
 	//configure the ospeed
+	gpio_configure_pin_pupd(GPIOx, pin_conf->pin, pin_conf->pupd);
+	//configure the pull up pull down
 	gpio_configure_pin_ospeed(GPIOx, pin_conf->pin, pin_conf->speed);
 	//configure the alternate function
 	if(pin_conf->alternate_function != -1)

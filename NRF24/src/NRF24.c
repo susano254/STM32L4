@@ -5,12 +5,6 @@
 #include <SPI.h>
 #include <NRF24.h>
 
-//CE pin of NRF24 = PB4
-//CSN pin of NRF24 = PB5
-#define CE_PIN 		4
-#define CSN_PIN 	5
-
-
 void CS_Select(){
   GPIOB->ODR &= ~(1 << CSN_PIN);
 }
@@ -37,7 +31,7 @@ void NRF24WriteReg(uint8_t reg, uint8_t data){
   while( (SPI1->SR & (1 << 7)) );
 
   //delay a bit before releasing 
-  for(int i = 0; i < 10; i++);
+  for(int i = 0; i < 100; i++);
   CS_UnSelect();
 }
 
@@ -54,7 +48,7 @@ uint8_t NRF24ReadReg(uint8_t reg){
   while( (SPI1->SR & (1 << 7)) );
 
   //delay a bit before releasing 
-  for(int i = 0; i < 10; i++);
+  for(int i = 0; i < 100; i++);
   CS_UnSelect();
 
   return rx;
@@ -65,13 +59,26 @@ void NRF24Init(uint8_t CE, uint8_t CSN){
 	SPIInit(prescaler);
 
 	//configure other pins used by the NRF24
-	GPIOInit('B');
 	//set PB4 and PB5 to output
-	setToOuputMode(GPIOB, CE);
-	setToOuputMode(GPIOB, CSN);
+  gpio_pin_conf_t ce_pin, cs_pin;
+  ce_pin.pin = CE_PIN;
+  cs_pin.pin = CSN_PIN;
+  
+  ce_pin.mode = GPIO_PIN_OUTPUT_MODE;
+  cs_pin.mode = GPIO_PIN_OUTPUT_MODE;
+
+  ce_pin.op_type = GPIO_PIN_OP_TYPE_PUSH_PULL;
+  cs_pin.op_type = GPIO_PIN_OP_TYPE_PUSH_PULL;
+
+  ce_pin.speed = GPIO_PIN_OSPEED_HIGH;
+  cs_pin.speed = GPIO_PIN_OSPEED_HIGH;
+
+  RCC_GPIOB_CLK_ENABLE();
+	gpio_init(GPIOB, &ce_pin);
+	gpio_init(GPIOB, &cs_pin);
+
   CS_UnSelect();
   CE_Disable();
-
 }
 
 void transmit(uint8_t *data, int size){
@@ -102,14 +109,3 @@ void sendCmd(uint8_t cmd){
   CS_UnSelect();
 }
 
-int main(){
-	CE_Enable();
-	NRF24Init(CE_PIN, CSN_PIN);
-	CE_Disable();
-
-	while(1){
-
-	}
-
-  return 0;
-}

@@ -3,47 +3,10 @@
 #include <I2C.h>
 #include <USART.h>
 
-I2C_Handle_t i2c_handle;
-uint8_t buffer[2];
-
-int main(){
-	i2c_handle.instance = I2C1;
-	I2CInit(&i2c_handle);
-
-	buffer[0] = 0x75;
-	buffer[1] = 0x00;
-
-	i2c_master_rx(&i2c_handle, 0x68, buffer, 2);
-	while(1);
-
-	return 0;
-}
 
 
 void I2CInit(I2C_Handle_t* handle){
-	//configure pins 
-	RCC_GPIOA_CLK_ENABLE();
-
-	//PA9, PA10 alternate function mode
-	setToAF(GPIOA, 9);
-	setToAF(GPIOA, 10);
-	//set to open drain
-	GPIOA->OTYPER |= (1 << 9);
-	GPIOA->OTYPER |= (1 << 10);
-	//set pin9 to AF4	
-	setAFR(GPIOA, 9, 4);
-	//set pin10 to AF4
-	setAFR(GPIOA, 10, 4);
-	//set pullups for pin 9 and 10
-	GPIOA->PUPDR &= ~(3 << 18);
-	GPIOA->PUPDR |= (1 << 18);
-	GPIOA->PUPDR &= ~(3 << 20);
-	GPIOA->PUPDR |= (1 << 20);
-
-
-
 	//enable clock 
-	RCC_HSI16_CLK_ENABLE();
 	if(handle->instance == I2C1){
 		//select clock
 		RCC_I2C1_CLK_SEL(HSI16);
@@ -71,24 +34,43 @@ void I2CInit(I2C_Handle_t* handle){
 	handle->instance->TIMINGR |= (0x4 << I2C_REG_TIMINGR_SCLDEL);
 	//finally enable peripheral
 	i2c_enable_peripheral(handle->instance);
-	
+	//wait for a while till the device wakes
+	for(int i = 0; i < 2000; i++);
 }
 
-void i2c_master_tx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t *buffer, uint32_t size){
+void i2c_master_tx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t regAddr, uint8_t *buffer, uint32_t size){
+	int i;
 	//populate the handler
 	handle->buffer = buffer;
 	handle->bufferSize = size;
 	handle->state = I2C_STATE_BUSYTX;
 
+	//reset the cr2 register first 
+	handle->instance->CR2 = 0;
 	//write the address of the slave device in sadd
 	handle->instance->CR2 |= (slave_address << I2C_REG_CR2_SADD7);
+
+
+
 	//write the NBytes to be transmitted
-	handle->instance->CR2 |= (handle->bufferSize << I2C_REG_CR2_NBYTES);
+	//first clear the old value
+	handle->instance->CR2 &= ~(0xff << I2C_REG_CR2_NBYTES);
+	//write the NBytes to be transmitted
+	handle->instance->CR2 |= (handle->bufferSize+1 << I2C_REG_CR2_NBYTES);
 	//write the direction to be write
 	handle->instance->CR2 &= ~I2C_REG_CR2_RD_WRN;
 	//generate a start condition
 	i2c_start_gen(handle->instance);
-	for(int i = 0; i < size; i++){
+
+	//first write  regAddr
+	//wait for the TXE flag 
+	while(!(handle->instance->ISR & I2C_REG_ISR_TXE));
+	//write the data in TXDR to be sent
+	handle->instance->TXDR = regAddr;
+	//wait for the ACK
+	while(!(handle->instance->ISR & I2C_REG_ISR_TXIS));
+	//then write data to it 
+	for(i = 0; i < size; i++){
 		//wait till the TX register is empty
 		while(!(handle->instance->ISR & I2C_REG_ISR_TXE));
 		//put the data to be transmitted
@@ -104,12 +86,15 @@ void i2c_master_tx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t *buffer,
 	i2c_stop_gen(handle->instance);
 }
 
-void i2c_master_rx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t *buffer, uint32_t size){
+void i2c_master_rx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t regAddr, uint8_t *buffer, uint32_t size){
+	int i;
 	//populate the handler
 	handle->buffer = buffer;
 	handle->bufferSize = size;
 	handle->state = I2C_STATE_BUSYTX;
 
+	//reseet the cr2 register first 
+	handle->instance->CR2 = 0;
 	//write the address of the slave device in sadd
 	handle->instance->CR2 |= (slave_address << I2C_REG_CR2_SADD7);
 
@@ -125,20 +110,20 @@ void i2c_master_rx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t *buffer,
 	//wait for the TXE flag 
 	while(!(handle->instance->ISR & I2C_REG_ISR_TXE));
 	//write the data in TXDR to be sent
-	handle->instance->TXDR = buffer[0];
+	handle->instance->TXDR = regAddr;
 	//wait for the TC
 	while(!(handle->instance->ISR & I2C_REG_ISR_TC));
 
 	//then read
-	//first subtract one from buffersize since we already transferred the first Byte which is the internal REG address
-	handle->bufferSize--;
 	//write the NBytes to be transmitted
+	//first clear the old value
+	handle->instance->CR2 &= ~(0xff << I2C_REG_CR2_NBYTES);
 	handle->instance->CR2 |= (handle->bufferSize << I2C_REG_CR2_NBYTES);
 	//write the direction to be a write
 	handle->instance->CR2 |= I2C_REG_CR2_RD_WRN;
 	//generate a start condition again
 	i2c_start_gen(handle->instance);
-	for(int i = 1; i < size; i++){
+	for(i = 0; i < size; i++){
 		//wait until the RX register is filled (not empty)
 		while(!(handle->instance->ISR & I2C_REG_ISR_RXNE));
 		//read  the data
@@ -161,6 +146,8 @@ void i2c_stop_gen(I2C_TypeDef* I2Cx){
 	I2Cx->CR2 |= I2C_REG_CR2_STOP;
 	//wait for success
 	while (I2Cx->CR2 & I2C_REG_CR2_STOP);
+	//clear the stop flag 
+	I2Cx->ICR |= I2C_REG_ICR_STOPCF;
 }
 
 void i2c_enable_peripheral(I2C_TypeDef* I2Cx){
