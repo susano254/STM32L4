@@ -1,8 +1,7 @@
 {
-	"C_Cpp.errorSquiggles": "disabled",
 	"files.associations": {
 		"*.asm": "mips",
 		"*.s": "arm",
-		"nrf24.h": "c"
+		"adc.h": "c"
 	}
 }

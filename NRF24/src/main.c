@@ -16,19 +16,28 @@ int main(){
 	uint8_t reg;
 	SystemInit();
 	USART2Init(115200, HSI16);
-	NRF24Init(CE_PIN, CSN_PIN);
 
-	reg = NRF24ReadReg(0x00);
-	reg = NRF24ReadReg(0x01);
-	reg = NRF24ReadReg(0x02);
-	reg = NRF24ReadReg(0x03);
-	reg = NRF24ReadReg(0x04);
-	reg = NRF24ReadReg(0x05);
-	reg = NRF24ReadReg(0x06);
-	reg = NRF24ReadReg(0x10);
+	char buffer[100] = {0xe7, 0xe7, 0xe7, 0xe7, 0xe7};
+	NRF24Init(CE_PIN, CSN_PIN);
+	NRF24RxMode(buffer, 0);
+
+	char read[8];
+	for(int i = 0; i < 7; i++){
+		read[i] = NRF24ReadReg(i);
+	}
+
+	uint8_t status = 0xff;
+	receive(buffer);
 	while(1){
-		printInt(reg);
-		printStrln("");
+		status = NRF24ReadReg(STATUS);
+		if(isDataAvailable(0)){
+			printStrln("Data found");
+			receive(buffer);
+			printStrln(buffer);
+		}
+		//else {
+		//	printStrln("No data found");
+		//}
 	}
 
   return 0;

@@ -35,52 +35,84 @@
 #define FEATURE	    0x1D
 
 /* Bit Mnemonics */
-#define MASK_RX_DR  6
-#define MASK_TX_DS  5
-#define MASK_MAX_RT 4
-#define EN_CRC      3
-#define CRCO        2
-#define PWR_UP      1
-#define PRIM_RX     0
-#define ENAA_P5     5
-#define ENAA_P4     4
-#define ENAA_P3     3
-#define ENAA_P2     2
-#define ENAA_P1     1
-#define ENAA_P0     0
-#define ERX_P5      5
-#define ERX_P4      4
-#define ERX_P3      3
-#define ERX_P2      2
-#define ERX_P1      1
-#define ERX_P0      0
-#define AW          0
-#define ARD         4
-#define ARC         0
-#define PLL_LOCK    4
-#define RF_DR       3
-#define RF_PWR      6
-#define RX_DR       6
-#define TX_DS       5
-#define MAX_RT      4
-#define RX_P_NO     1
-#define TX_FULL     0
-#define PLOS_CNT    4
-#define ARC_CNT     0
-#define TX_REUSE    6
-#define FIFO_FULL   5
-#define TX_EMPTY    4
-#define RX_FULL     1
-#define RX_EMPTY    0
-#define DPL_P5	    5
-#define DPL_P4	    4
-#define DPL_P3	    3
-#define DPL_P2	    2
-#define DPL_P1	    1
-#define DPL_P0	    0
-#define EN_DPL	    2
-#define EN_ACK_PAY  1
-#define EN_DYN_ACK  0
+
+
+//CONFIG register bits
+#define PWR_OFF		0x00
+#define MASK_RX_DR  (1 << 6)
+#define MASK_TX_DS  (1 << 5)
+#define MASK_MAX_RT (1 << 4)
+#define EN_CRC      (1 << 3)
+#define CRCO        (1 << 2)
+#define PWR_UP      (1 << 1)
+#define PRIM_RX     (1 << 0)
+
+
+//EN_AA Register bits
+#define ENAA_P5     (1 << 5)
+#define ENAA_P4     (1 << 4)
+#define ENAA_P3     (1 << 3)
+#define ENAA_P2     (1 << 2)
+#define ENAA_P1     (1 << 1)
+#define ENAA_P0     (1 << 0)
+
+
+//EN_RXADDR Register bits
+#define ERX_P5      (1 << 5)
+#define ERX_P4      (1 << 4)
+#define ERX_P3      (1 << 3)
+#define ERX_P2      (1 << 2)
+#define ERX_P1      (1 << 1)
+#define ERX_P0      (1 << 0)
+
+
+//Setup_AW (address width) register bits
+#define AW          (1 << 0)
+
+
+//SETUP RETR register bits
+#define ARD         (1 << 4)
+#define ARC         (1 << 0)
+
+//RF_SETUP register bits
+#define CONT_WAVE	(1 << 7)
+#define RF_DR_LOW	(1 << 5)
+#define PLL_LOCK    (1 << 4)
+#define RF_DR_HIGH  (1 << 3)
+#define RF_PWR      (1 << 1)
+
+
+
+//Status register bits
+#define RX_DR       (1 << 6)
+#define TX_DS       (1 << 5)
+#define MAX_RT      (1 << 4)
+#define RX_P_NO     (1)
+#define TX_FULL     (1 << 0)
+
+//OBSERVE_TX register bits
+#define PLOS_CNT    (1 << 4)
+#define ARC_CNT     (1 << 0)
+
+//FIFO_STATUS Register bits
+#define TX_REUSE    (1 << 6)
+#define FIFO_FULL   (1 << 5)
+#define TX_EMPTY    (1 << 4)
+#define RX_FULL     (1 << 1)
+#define RX_EMPTY    (1 << 0)
+
+//DYNPD (Dynamic payload) register bits
+#define DPL_P5	    (1 << 6)
+#define DPL_P4	    (1 << 4)
+#define DPL_P3	    (1 << 3)
+#define DPL_P2	    (1 << 2)
+#define DPL_P1	    (1 << 1)
+#define DPL_P0	    (1 << 0)
+
+//FEATURE Register bits
+#define EN_DPL	    (1 << 2)
+#define EN_ACK_PAY  (1 << 1)
+#define EN_DYN_ACK  (1 << 0)
 
 /* Instruction Mnemonics */
 #define R_REGISTER    0x00
@@ -102,11 +134,11 @@
 /* P model memory Map */
 #define RPD         0x09
 
-/* P model bit Mnemonics */
-#define RF_DR_LOW   5
-#define RF_DR_HIGH  3
-#define RF_PWR_LOW  1
-#define RF_PWR_HIGH 2
+///* P model bit Mnemonics */
+//#define RF_DR_LOW   5
+//#define RF_DR_HIGH  3
+//#define RF_PWR_LOW  1
+//#define RF_PWR_HIGH 2
 
 #define CE_PIN 		PB4
 #define CSN_PIN 	PB5
@@ -115,7 +147,10 @@ void NRF24Init(uint8_t, uint8_t);
 void NRF24WriteReg(uint8_t, uint8_t);
 void NRF24WriteMultiReg(uint8_t, uint8_t* , uint8_t);
 uint8_t NRF24ReadReg(uint8_t);
-uint8_t NRF24ReadMultiReg(uint8_t, uint8_t*, uint8_t);
+void NRF24ReadMultiReg(uint8_t, uint8_t*, uint8_t);
+uint8_t isDataAvailable(uint8_t pipeNum);
+void NRF24RxMode(uint8_t *addr, uint8_t channel);
+void NRF24TxMode(uint8_t *addr, uint8_t channel);
 void receive(uint8_t*);
 void transmit(uint8_t*, int);
 
