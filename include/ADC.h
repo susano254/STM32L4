@@ -1018,3 +1018,21 @@
 #define ADC_CCR_VBATEN_Msk             (0x1UL << ADC_CCR_VBATEN_Pos)           /*!< 0x01000000 */
 #define ADC_CCR_VBATEN                 ADC_CCR_VBATEN_Msk                      /*!< ADC internal path to battery voltage enable */
 
+#define RCC_ADC_CLK_SYS_SEL()			(RCC->CCIPR |= RCC_CCIPR_ADCSEL)
+
+typedef struct {
+	uint32_t number;
+	uint32_t sampling_time;
+	uint32_t sequence;
+	uint32_t status;
+} adc_channel_conf_t; 
+
+typedef struct { 
+	ADC_TypeDef *instance;
+	adc_channel_conf_t	*channels;
+	uint32_t 	numOfChannels;
+	uint32_t 	numOfConversions;
+} ADCx_init_t;
+
+
+void ADCInit(ADCx_init_t *init_struct);

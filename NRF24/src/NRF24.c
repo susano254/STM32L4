@@ -93,7 +93,7 @@ void NRF24ReadMultiReg(uint8_t reg, uint8_t *data, uint8_t size){
 }
 
 void NRF24Init(uint8_t CE, uint8_t CSN){
-	uint8_t prescaler = 0b000;
+	uint8_t prescaler = 0b010;
 
 	SPIInit(prescaler);
 

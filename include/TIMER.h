@@ -811,3 +811,53 @@
 #define TIM16_OR2_BKCMP2P_Msk      (0x1UL << TIM16_OR2_BKCMP2P_Pos)            /*!< 0x00000800 */
 #define TIM16_OR2_BKCMP2P          TIM16_OR2_BKCMP2P_Msk                       /*!<BRK COMP2 input polarity */
 
+
+#define CHANNEL_IO_OUTPUT			(0x00)
+#define CHANNEL_IO_INPUT_TI2		(0x01)
+#define CHANNEL_IO_INPUT_TI1		(0x02)
+#define CHANNEL_IO_INPUT_TRC		(0x03)
+
+#define CHANNEL_POLARITY_HIGH		(0U)
+#define CHANNEL_POLARITY_LOW		(1U)
+
+#define TIM_DIR_DOWNCOUNT				(1U)
+#define TIM_DIR_UPCOUNT					(0U)
+
+
+typedef struct {
+	uint32_t no;
+	uint32_t io;
+	uint32_t mode;
+	uint32_t polarity;
+	uint32_t capture_preload_enable;
+	uint32_t capture_compare;
+} channel_conf_t;
+
+typedef struct {
+	TIM_TypeDef *instance;
+	uint32_t prescaler;
+	uint32_t auto_reload;
+	uint32_t preload;
+	uint32_t direction;
+} TIMx_init_t;
+
+typedef enum {
+	OCxM_FROZEN 			= 0b0000,
+	OCxM_SET_ACTIVE 		= 0b0001,
+	OCxM_SET_INACTIVE 		= 0b0010,
+	OCxM_TOGGLE				= 0b0011,
+	OCxM_FORCE_ACTIVE 		= 0b0100,
+	OCxM_FORCE_INACTIVE 	= 0b0101,
+	OCxM_PWM_1				= 0b0110,
+	OCxM_PWM_2				= 0b0111,
+	OCxM_OPM_1				= 0b1000,
+	OCxM_OPM_2				= 0b1001,
+	OCxM_COMB_PWM_1			= 0b1100,
+	OCxM_COMB_PWM_2			= 0b1101,
+	OCxM_ASYM_PWM_1			= 0b1110,
+	OCxM_ASYM_PWM_2			= 0b1111,
+} ch_mode_t;
+
+
+void TIMx_init(TIMx_init_t *init_struct);
+void channel_init(TIM_TypeDef *TIMx, channel_conf_t *ch);

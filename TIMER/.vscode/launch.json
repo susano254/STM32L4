@@ -16,8 +16,8 @@
 		"filterStdout": false,
 		"serverStarted": "Listening on port 3333 for gdb connections",
 		//"miDebuggerArgs": "-q -x ${workspaceFolder}/scripts/pretty_printers.py",
-		"internalConsoleOptions": "openOnSessionStart",
-		"externalConsole": false,
+		//"internalConsoleOptions": "openOnSessionStart",
+		//"externalConsole": false,
 		"MIMode": "gdb",
 		"setupCommands": [
 			{
@@ -38,6 +38,10 @@
 			{
 				"description": "reset program execution",
 				"text": "monitor reset halt",
+				"ignoreFailures": false
+			},
+			{
+				"text": "set output-radix 16 ",
 				"ignoreFailures": false
 			},
 		],

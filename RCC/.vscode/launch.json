@@ -40,6 +40,10 @@
 				"text": "monitor reset halt",
 				"ignoreFailures": false
 			},
+			{
+				"text": "set output-radix 16 ",
+				"ignoreFailures": false
+			},
 		],
 		"preLaunchTask": "Build",
 		"logging": {
