@@ -1,1 +1,1 @@
-# NRF24 Best Effort driver
+# Attitude estimation repository changed a bit for use in stm32l4
