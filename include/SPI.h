@@ -10,7 +10,13 @@
 #define SSI 	(1 << 8)
 #define SPE 	(1 << 6)
 
-void SPIInit(uint8_t);
-uint8_t SPITransfer(uint8_t);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void SPIInit(uint8_t);
+	uint8_t SPITransfer(uint8_t);
+#ifdef __cplusplus
+}
+#endif                                      
 
 #endif

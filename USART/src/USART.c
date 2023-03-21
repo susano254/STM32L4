@@ -186,7 +186,7 @@ void floatToStr(float num, char *str){
 
 	int floatLen = length(floatStr);
 	if(floatLen < 3){
-		char temp[3] = {0, 0, 0};
+		char temp[3] = {'\0'};
 		int diff = 3 - floatLen;
 
 		for(int i = 0; i < diff; i++)

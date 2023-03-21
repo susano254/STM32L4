@@ -109,21 +109,27 @@ typedef struct {
 	rx_callback_t		*rx_callback;
 } usart_handle_t;
 
-void hal_usart_init(usart_handle_t *handle);
-void hal_usart_tx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
-void hal_usart_rx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
-void hal_usart_handle_interrupt(usart_handle_t *handle);
+#ifdef __cplusplus
+extern "C" {
+#endif
+	void hal_usart_init(usart_handle_t *handle);
+	void hal_usart_tx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
+	void hal_usart_rx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
+	void hal_usart_handle_interrupt(usart_handle_t *handle);
 
-void USART2Init(int baudRate, const uint8_t clock);
-void USART_EnableInterrupt(USART_TypeDef * USARTx, uint8_t interruptNumber);
-void USART2SendByte(uint8_t byte);
-void USART2Send(uint8_t *pData, uint16_t size);
-void printStrln(char *str);
-void printStr(char *str);
-int length(char *str);
-void intToStr(int num, char *str);
-void floatToStr(float num, char *str);
-void printInt(int num);
-void printFloat(float num);
+	void USART2Init(int baudRate, const uint8_t clock);
+	void USART_EnableInterrupt(USART_TypeDef * USARTx, uint8_t interruptNumber);
+	void USART2SendByte(uint8_t byte);
+	void USART2Send(uint8_t *pData, uint16_t size);
+	void printStrln(char *str);
+	void printStr(char *str);
+	int length(char *str);
+	void intToStr(int num, char *str);
+	void floatToStr(float num, char *str);
+	void printInt(int num);
+	void printFloat(float num);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

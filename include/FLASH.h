@@ -214,4 +214,10 @@
 #define FLASH_WRP1BR_WRP1B_END_Msk        (0x7FUL << FLASH_WRP1BR_WRP1B_END_Pos)  /*!< 0x007F0000 */
 #define FLASH_WRP1BR_WRP1B_END            FLASH_WRP1BR_WRP1B_END_Msk
 
-void FLASH_SET_LATENCY(uint32_t latency);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void FLASH_SET_LATENCY(uint32_t latency);
+#ifdef __cplusplus
+}
+#endif                                      

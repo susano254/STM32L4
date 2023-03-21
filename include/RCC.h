@@ -1090,11 +1090,19 @@ typedef enum {
   LSE = 0b11
 } preipheral_clocks_t;
 
-uint8_t RCC_SET_SYSCLK(uint32_t sysClock);
-uint8_t RCC_SET_MSI_RANGE(msi_range_t range);
-void RCC_I2C3_CLK_SEL(preipheral_clocks_t clock);
-void RCC_I2C1_CLK_SEL(preipheral_clocks_t clock);
-void RCC_HSI16_CLK_ENABLE();
-void SystemInit();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  uint8_t RCC_SET_SYSCLK(uint32_t sysClock);
+  uint8_t RCC_SET_MSI_RANGE(msi_range_t range);
+  void RCC_I2C3_CLK_SEL(preipheral_clocks_t clock);
+  void RCC_I2C1_CLK_SEL(preipheral_clocks_t clock);
+  void RCC_HSI16_CLK_ENABLE();
+  void SystemInit();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

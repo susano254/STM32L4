@@ -101,14 +101,20 @@ typedef struct {
 	//void 			(*pI2CInit)();
 } I2C_Handle_t;
 
-void i2c_set_addressing_mode(I2C_TypeDef*, uint32_t);
-void i2c_manage_clock_stretch(I2C_TypeDef*, uint32_t);
-void i2c_disable_peripheral(I2C_TypeDef*);
-void i2c_enable_peripheral(I2C_TypeDef*);
-void i2c_stop_gen(I2C_TypeDef*);
-void i2c_start_gen(I2C_TypeDef*);
-void i2c_master_rx(I2C_Handle_t *, uint8_t slave_address, uint8_t reg_addr,  uint8_t *buffer, uint32_t size);
-void i2c_master_tx(I2C_Handle_t *, uint8_t slave_address, uint8_t reg_addr,  uint8_t *buffer, uint32_t size);
-void I2CInit(I2C_Handle_t*);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void i2c_set_addressing_mode(I2C_TypeDef*, uint32_t);
+	void i2c_manage_clock_stretch(I2C_TypeDef*, uint32_t);
+	void i2c_disable_peripheral(I2C_TypeDef*);
+	void i2c_enable_peripheral(I2C_TypeDef*);
+	void i2c_stop_gen(I2C_TypeDef*);
+	void i2c_start_gen(I2C_TypeDef*);
+	void i2c_master_rx(I2C_Handle_t *, uint8_t slave_address, uint8_t reg_addr,  uint8_t *buffer, uint32_t size);
+	void i2c_master_tx(I2C_Handle_t *, uint8_t slave_address, uint8_t reg_addr,  uint8_t *buffer, uint32_t size);
+	void I2CInit(I2C_Handle_t*);
+#ifdef __cplusplus
+}
+#endif                                      
 
 #endif                                      

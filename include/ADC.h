@@ -1035,4 +1035,10 @@ typedef struct {
 } ADCx_init_t;
 
 
-void ADCInit(ADCx_init_t *init_struct);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void ADCInit(ADCx_init_t *init_struct);
+#ifdef __cplusplus
+}
+#endif                                      

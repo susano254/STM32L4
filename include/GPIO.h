@@ -116,9 +116,15 @@ typedef struct {
 }gpio_pin_conf_t;
 
 
-void gpio_init(GPIO_TypeDef*, gpio_pin_conf_t*);
-uint8_t gpio_read_pin(GPIO_TypeDef*, uint8_t);
-void gpio_write_pin(GPIO_TypeDef*, uint8_t, uint8_t);
-void gpio_set_alt_func(GPIO_TypeDef*, uint8_t, uint8_t);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void gpio_init(GPIO_TypeDef*, gpio_pin_conf_t*);
+	uint8_t gpio_read_pin(GPIO_TypeDef*, uint8_t);
+	void gpio_write_pin(GPIO_TypeDef*, uint8_t, uint8_t);
+	void gpio_set_alt_func(GPIO_TypeDef*, uint8_t, uint8_t);
+#ifdef __cplusplus
+}
+#endif                                      
 
 #endif

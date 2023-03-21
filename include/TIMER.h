@@ -859,5 +859,11 @@ typedef enum {
 } ch_mode_t;
 
 
-void TIMx_init(TIMx_init_t *init_struct);
-void channel_init(TIM_TypeDef *TIMx, channel_conf_t *ch);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void TIMx_init(TIMx_init_t *init_struct);
+	void channel_init(TIM_TypeDef *TIMx, channel_conf_t *ch);
+#ifdef __cplusplus
+}
+#endif                                      

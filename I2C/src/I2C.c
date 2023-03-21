@@ -35,8 +35,9 @@ void I2CInit(I2C_Handle_t* handle){
 	//finally enable peripheral
 	i2c_enable_peripheral(handle->instance);
 	//wait for a while till the device wakes
-	for(int i = 0; i < 2000; i++);
+	for(int i = 0; i < 800000; i++);
 }
+
 
 void i2c_master_tx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t regAddr, uint8_t *buffer, uint32_t size){
 	int i;
@@ -107,7 +108,7 @@ void i2c_master_rx(I2C_Handle_t *handle, uint8_t slave_address, uint8_t regAddr,
 	handle->instance->CR2 &= ~I2C_REG_CR2_RD_WRN;
 	//generate the start condition
 	i2c_start_gen(handle->instance);
-	//wait for the TXE flag 
+	//wait fjr the TXE flag 
 	while(!(handle->instance->ISR & I2C_REG_ISR_TXE));
 	//write the data in TXDR to be sent
 	handle->instance->TXDR = regAddr;

@@ -143,21 +143,27 @@
 #define CE_PIN 		PB4
 #define CSN_PIN 	PB5
 
-void NRF24Init(uint8_t, uint8_t);
-void NRF24WriteReg(uint8_t, uint8_t);
-void NRF24WriteMultiReg(uint8_t, uint8_t* , uint8_t);
-uint8_t NRF24ReadReg(uint8_t);
-void NRF24ReadMultiReg(uint8_t, uint8_t*, uint8_t);
-uint8_t isDataAvailable(uint8_t pipeNum);
-void NRF24RxMode(uint8_t *addr, uint8_t channel);
-void NRF24TxMode(uint8_t *addr, uint8_t channel);
-void receive(uint8_t*);
-void transmit(uint8_t*, int);
+#ifdef __cplusplus
+extern "C" {
+#endif                                      
+	void NRF24Init(uint8_t, uint8_t);
+	void NRF24WriteReg(uint8_t, uint8_t);
+	void NRF24WriteMultiReg(uint8_t, uint8_t* , uint8_t);
+	uint8_t NRF24ReadReg(uint8_t);
+	void NRF24ReadMultiReg(uint8_t, uint8_t*, uint8_t);
+	uint8_t isDataAvailable(uint8_t pipeNum);
+	void NRF24RxMode(uint8_t *addr, uint8_t channel);
+	void NRF24TxMode(uint8_t *addr, uint8_t channel);
+	void receive(uint8_t*);
+	void transmit(uint8_t*, int);
 
-void sendCmd(uint8_t);
-void CE_Enable();
-void CE_Disable();
-void CS_Select();
-void CS_UnSelect();
+	void sendCmd(uint8_t);
+	void CE_Enable();
+	void CE_Disable();
+	void CS_Select();
+	void CS_UnSelect();
+#ifdef __cplusplus
+}
+#endif                                      
 
 #endif
