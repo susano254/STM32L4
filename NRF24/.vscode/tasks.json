@@ -18,6 +18,13 @@
 			}
 		},
 		{
+			"label": "Upload",
+			"command": "make upload",
+			"group": "build",
+			"type": "shell",
+			"args": [],
+		},
+		{
 			"label": "Debug",
 			"type": "shell",
 			"command": "make debug",

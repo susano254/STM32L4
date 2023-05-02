@@ -45,7 +45,7 @@
 				"ignoreFailures": false
 			},
 		],
-		"preLaunchTask": "Build",
+		"preLaunchTask": "Upload",
 		"logging": {
 			//"trace": true,
 			//"traceResponse": true,

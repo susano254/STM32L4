@@ -8,6 +8,7 @@
 
 
 using namespace AML;
+using namespace global;
 
 class Main {
 
@@ -19,15 +20,15 @@ class Main {
 
 int main (int argc, char **argv){
 	Main instance;
-	SystemInit();
-	USART2Init(115200, HSI16);
+	System.Init();
+	Serial.begin(115200);
 	while(true){
 		instance.y = 4;
-		printInt(instance.y);
-		printStrln("");
+		Serial.printInt(instance.y);
+		Serial.printStrln("");
 		instance.y = 3;
-		printInt(instance.y);
-		printStrln("");
+		Serial.printInt(instance.y);
+		Serial.printStrln("");
 	}
 	// EulerAngles angles1(deg2Rad(10), deg2Rad(-20), deg2Rad(15));
 	// EulerAngles angles2(deg2Rad(40), deg2Rad(-60), deg2Rad(135));

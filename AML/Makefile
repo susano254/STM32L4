@@ -21,7 +21,7 @@ LD_OPTIONS = -nostartfiles --specs=nano.specs --specs=nosys.specs
 #link math library
 LIBS = -lm
 
-all: compile link upload
+all: compile link 
 
 build:	compile link
 

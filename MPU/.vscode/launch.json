@@ -19,6 +19,11 @@
 			"setupCommands": [
 				{
 					"description": "Enable pretty-printing for gdb",
+					"text": "file ${workspaceFolder}/Build/${workspaceFolderBasename}.elf",
+					"ignoreFailures": false
+				},
+				{
+					"description": "Enable pretty-printing for gdb",
 					"text": "-enable-pretty-printing",
 					"ignoreFailures": true
 				},
@@ -30,6 +35,16 @@
 				{
 					"description": "Connect to openocd server",
 					"text": "target remote :3333",
+					"ignoreFailures": false
+				},
+				{
+					"description": "loads the program",
+					"text": "load",
+					"ignoreFailures": false
+				},
+				{
+					"description": "loads the program",
+					"text": "compare-sections",
 					"ignoreFailures": false
 				},
 				{

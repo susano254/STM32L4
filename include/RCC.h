@@ -2,6 +2,7 @@
 #define RCC_H
 
 #include <stm32l432kc.h>
+#include <Core.h>
 
 /********************  Bit definition for RCC_CR register  ********************/
 #define RCC_CR_MSION_Pos                     (0U)
@@ -1028,6 +1029,8 @@
 #define RCC_I2C3_CLK_ENABLE()	  (RCC->APB1ENR1 |= (1 << 23))
 #define RCC_USART2_CLK_ENABLE() (RCC->APB1ENR1 |= (1 << 17))
 #define RCC_TIM2_CLK_ENABLE()	  (RCC->APB1ENR1 |= (1 << 0))
+#define RCC_TIM6_CLK_ENABLE()   (RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN)
+#define RCC_TIM7_CLK_ENABLE()   (RCC->APB1ENR1 |= RCC_APB1ENR1_TIM7EN)
 
 
 /****************************APB2 BUS Clocks****************************/
@@ -1090,16 +1093,37 @@ typedef enum {
   LSE = 0b11
 } preipheral_clocks_t;
 
+namespace global {
+	extern I2C_TypeDef *I2C1_Base;
+	extern RCC_TypeDef *RCC_Base;
+	extern GPIO_TypeDef *GPIOA_Base;
+	extern GPIO_TypeDef *GPIOB_Base;
+	extern GPIO_TypeDef *GPIOC_Base;
+	extern USART_TypeDef *USART2_Base;
+	extern SPI_TypeDef *SPI1_Base;
+	extern NVIC_Type* NVIC_Base;
+	extern FLASH_TypeDef* FLASH_Base;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+  // void SystemInit();
   uint8_t RCC_SET_SYSCLK(uint32_t sysClock);
   uint8_t RCC_SET_MSI_RANGE(msi_range_t range);
   void RCC_I2C3_CLK_SEL(preipheral_clocks_t clock);
   void RCC_I2C1_CLK_SEL(preipheral_clocks_t clock);
   void RCC_HSI16_CLK_ENABLE();
-  void SystemInit();
+  void RCC_PLL_CLK_ENABLE();
+  void RCC_SET_PLL_SRC(uint32_t pllSrc);
+  void RCC_SET_PLLM_DIV(uint32_t pllM);
+  void RCC_SET_PLLN_MUL(uint32_t pllN);
+  void RCC_SET_PLLR_DIV(uint32_t pllR);
+  void RCC_SET_AHB_PRESCALER(uint32_t prescaler);
+  void RCC_SET_APB1_PRESCALER(uint32_t prescaler);
+  void RCC_SET_APB2_PRESCALER(uint32_t prescaler);
+
 
 #ifdef __cplusplus
 }

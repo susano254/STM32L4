@@ -1,6 +1,10 @@
 #include <stm32l432kc.h>
+#include <vector>
 
+using namespace std;
 
+#ifndef TIM_H
+#define TIM_H
 
 /******************************************************************************/
 /*                                                                            */
@@ -858,12 +862,37 @@ typedef enum {
 	OCxM_ASYM_PWM_2			= 0b1111,
 } ch_mode_t;
 
+class TIMER {
+	private:
 
-#ifdef __cplusplus
-extern "C" {
-#endif                                      
-	void TIMx_init(TIMx_init_t *init_struct);
-	void channel_init(TIM_TypeDef *TIMx, channel_conf_t *ch);
-#ifdef __cplusplus
-}
-#endif                                      
+		void enable_channel(TIM_TypeDef *TIMx, channel_conf_t * ch);
+		void set_polarity(TIM_TypeDef *TIMx, channel_conf_t *ch);
+		void set_ch_io(TIM_TypeDef *TIMx, channel_conf_t *ch);
+		void set_preaload_enable(TIM_TypeDef *TIMx, channel_conf_t *ch);
+		void set_ch_mode(TIM_TypeDef *TIMx, channel_conf_t *ch);
+
+	public:
+		TIMx_init_t init_struct;
+		vector<channel_conf_t*> channels;
+		void set_capture_compare(TIM_TypeDef *TIMx, channel_conf_t *ch);
+		uint32_t get_capture_compare(TIM_TypeDef *TIMx, channel_conf_t *ch);
+		void init(TIMx_init_t *init_struct);
+		void channel_init(TIM_TypeDef *TIMx, channel_conf_t *ch);
+		void timer_update(){
+			init_struct.instance->EGR |= TIM_EGR_UG;
+		}
+};
+
+// #ifdef __cplusplus
+// extern "C" {
+// #endif                                      
+// 	void TIMx_init(TIMx_init_t *init_struct);
+// 	void channel_init(TIM_TypeDef *TIMx, channel_conf_t *ch);
+// #ifdef __cplusplus
+// }
+// #endif                                      
+namespace global {
+	extern TIM_TypeDef *TIM2_Base;
+};
+
+#endif

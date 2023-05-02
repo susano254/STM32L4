@@ -2,46 +2,79 @@
 #define 	MPU_H
 
 #include <stm32l432kc.h>
+#include <AML/AML.h>
 
 #define MPU 		0x68
 #define MAG 		0x0C
 
-#define ACC_FACT	16384.0f	
-#define GYRO_FACT	131.0f	
+#define ACC_FACT	8192.0f	
+#define GYRO_FACT	16.4f	
 #define MAG_FACT	6.6667f
 #define CAL_FACT	1000
 
-typedef struct {
-	uint8_t calibrated;
+using namespace AML;
 
-	float acc[3];
-	float accError[3];
+struct MPU_t {
+	bool calibrated = false;
 
-	float gyro[3];
-	float gyroError[3];
+	Vector3 acc;
+	Vector3 accError;
 
-	float mag[3];
-	float magASA[3];
-	float magError[3];
-	float magScale[3];
+	Vector3 gyro;
+	Vector3 gyroError;
 
-	float angles[3];
-} MPU_t;
+	Vector3 mag;
+	Vector3 magASA;
+	Vector3 magError;
+	Vector3 magScale;
 
+	EulerAngles angles;
+	// union {
+	// 	Vector3 angles;
+	// 	struct {
+	// 		float roll, pitch, yaw;
+	// 	};
+		
+	// };
+	
+	MPU_t(){
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	MPU_t* getMpu();
-	void mpu_init();
+	}
+
+	void Init();
 	void readAcc();
 	void readGyro();
 	void readMag();
 	void printValues();
+	void printErrors();
+	void printAngles();
 	void calibrate();
 	void calculateAngles(float dt);
-#ifdef __cplusplus
-}
-#endif
+};
+
+
+struct Mahony {
+	float kp, ki;
+	Quaternion q;
+	Vector3 error;
+
+	Mahony() : kp(0.0), ki(0.0), q(1, 0, 0, 0), error(0.0) {}
+	EulerAngles update(Vector3 &acc, Vector3 &gyro, float dt);
+};
+
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
+// 	MPU_t* getMpu();
+// 	void mpu_init();
+// 	void readAcc();
+// 	void readGyro();
+// 	void readMag();
+// 	void printValues();
+// 	void calibrate();
+// 	void calculateAngles(float dt);
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif

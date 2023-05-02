@@ -20,27 +20,56 @@
 		"externalConsole": false,
 		"MIMode": "gdb",
 		"setupCommands": [
-			{
-				"description": "Enable pretty-printing for gdb",
-				"text": "-enable-pretty-printing",
-				"ignoreFailures": true
-			},
-			{
-				"description": "Set Disassembly Flavor to Intel",
-				"text": "-gdb-set disassembly-flavor intel",
-				"ignoreFailures": true
-			},
-			{
-				"description": "Connect to openocd server",
-				"text": "target remote :3333",
-				"ignoreFailures": false
-			},
-			{
-				"description": "reset program execution",
-				"text": "monitor reset halt",
-				"ignoreFailures": false
-			},
-		],
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "file ${workspaceFolder}/Build/${workspaceFolderBasename}.elf",
+					"ignoreFailures": false
+				},
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				},
+				{
+					"description": "Set Disassembly Flavor to Intel",
+					"text": "-gdb-set disassembly-flavor intel",
+					"ignoreFailures": true
+				},
+				{
+					"description": "Connect to openocd server",
+					"text": "target remote :3333",
+					"ignoreFailures": false
+				},
+				// {
+				// 	"description": "enable ITM",
+				// 	"text": "monitor tpiu config internal /dev/stdout uart off 8000000",
+				// 	"ignoreFailures": false
+				// },
+				// {
+				// 	"description": "enable ITM",
+				// 	"text": "monitor itm port 0 on",
+				// 	"ignoreFailures": false
+				// },
+				{
+					"description": "loads the program",
+					"text": "load",
+					"ignoreFailures": false
+				},
+				{
+					"description": "loads the program",
+					"text": "compare-sections",
+					"ignoreFailures": false
+				},
+				{
+					"description": "reset program execution",
+					"text": "monitor reset halt",
+					"ignoreFailures": false
+				},
+				{
+					"text": "set output-radix 16 ",
+					"ignoreFailures": false
+				},
+			],
 		"preLaunchTask": "Build",
 		"logging": {
 			//"trace": true,

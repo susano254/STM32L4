@@ -12,19 +12,19 @@ namespace AML {
 		public:
 			//Data
 			union {
-				double data[4];
+				float data[4];
 				struct {
-					double q0, q1, q2, q3;
+					float q0, q1, q2, q3;
 				};
 			};
 
 
 			//Constructors
 			Quaternion();
-			explicit Quaternion(double val);
-			explicit Quaternion(const double data[4]);
-			explicit Quaternion(double q0, double q1, double q2, double q3);
-			explicit Quaternion(double scalar, const Vector3 &vector);
+			explicit Quaternion(float val);
+			explicit Quaternion(const float data[4]);
+			explicit Quaternion(float q0, float q1, float q2, float q3);
+			explicit Quaternion(float scalar, const Vector3 &vector);
 			explicit Quaternion(const Vector3 &vector);
 
 
@@ -34,10 +34,10 @@ namespace AML {
 			Quaternion& operator*=(const Quaternion &rhs);
 
 			//Assignemnt operators (Scalar)
-			Quaternion& operator+=(double rhs);
-			Quaternion& operator-=(double rhs);
-			Quaternion& operator*=(double rhs);
-			Quaternion& operator/=(double rhs);
+			Quaternion& operator+=(float rhs);
+			Quaternion& operator-=(float rhs);
+			Quaternion& operator*=(float rhs);
+			Quaternion& operator/=(float rhs);
 
 			//Special needed functions
 			static const Quaternion identity();
@@ -51,14 +51,14 @@ namespace AML {
 	Quaternion operator*(const Quaternion &lhs, const Quaternion &rhs);
 
 	//Quaternion and constant operations
-	Quaternion operator+(const Quaternion &lhs, double s);
-	Quaternion operator-(const Quaternion &lhs, double s);
-	Quaternion operator*(const Quaternion &lhs, double s);
-	Quaternion operator/(const Quaternion &lhs, double s);
-	Quaternion operator+(double s, const Quaternion &lhs);
-	Quaternion operator-(double s, const Quaternion &lhs);
-	Quaternion operator*(double s, const Quaternion &lhs);
-	Quaternion operator/(double s, const Quaternion &lhs);
+	Quaternion operator+(const Quaternion &lhs, float s);
+	Quaternion operator-(const Quaternion &lhs, float s);
+	Quaternion operator*(const Quaternion &lhs, float s);
+	Quaternion operator/(const Quaternion &lhs, float s);
+	Quaternion operator+(float s, const Quaternion &lhs);
+	Quaternion operator-(float s, const Quaternion &lhs);
+	Quaternion operator*(float s, const Quaternion &lhs);
+	Quaternion operator/(float s, const Quaternion &lhs);
 
 	//Quaternion and vector operations
 	Vector3 operator*(const Quaternion &q, const Vector3 &v);
@@ -66,12 +66,12 @@ namespace AML {
 
 	//Quat operations
 	Quaternion conjugate(const Quaternion &q);
-	double norm(const Quaternion &q);
+	float norm(const Quaternion &q);
 	void normalise(Quaternion &q);
 	Quaternion inverse(const Quaternion &q);
 	Quaternion unit(const Quaternion &q);
-	bool isUnitQuat(const Quaternion &q, double tolerance = std::numeric_limits<double>::epsilon());
-	double dot(const Quaternion &lhs, const Quaternion &rhs);
+	bool isUnitQuat(const Quaternion &q, float tolerance = std::numeric_limits<float>::epsilon());
+	float dot(const Quaternion &lhs, const Quaternion &rhs);
 
 	//Converions
 	Matrix33 quat2DCM(const Quaternion &q);
@@ -89,13 +89,13 @@ namespace AML {
 
 
 	//Kinematic functions
-	Quaternion integrateQuat(const Quaternion &quat, const Quaternion &quatRates, double dt);
+	Quaternion integrateQuat(const Quaternion &quat, const Quaternion &quatRates, float dt);
 	Quaternion quatKinematicsRates_BodyRates(const Quaternion &q, const Vector3 &bodyRates);
 	Quaternion quatKinematicsRates_WorldRates(const Quaternion &q, const Vector3 &worldRates);
 
 	//interpolation
-	Quaternion linearInterpolation(const Quaternion &startQ, const Quaternion &endQ, double t);
-	Quaternion slerpInterpolation(const Quaternion &startQ, const Quaternion &endQ, double t);
+	Quaternion linearInterpolation(const Quaternion &startQ, const Quaternion &endQ, float t);
+	Quaternion slerpInterpolation(const Quaternion &startQ, const Quaternion &endQ, float t);
 };
 
 #endif

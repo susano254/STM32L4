@@ -9,9 +9,9 @@ namespace AML {
 	public:
 		enum class EulerSequence { ZXZ, XYX, YZY, ZYZ, XZX, YXY, XYZ, YZX, ZXY, XZY, ZYX, YXZ };
 		union {
-			double data[3];
+			float data[3];
 			struct {
-				double phi, theta, psi;
+				float phi, theta, psi;
 			};
 		};
 	private:
@@ -19,7 +19,7 @@ namespace AML {
 
 	public:
 		EulerAngles();
-		EulerAngles(double phi, double theta, double psi, EulerSequence seq = EulerSequence::XYZ);
+		EulerAngles(float phi, float theta, float psi, EulerSequence seq = EulerSequence::XYZ);
 
 		EulerSequence getEulerSequence() const { return seq; }
 
@@ -31,8 +31,8 @@ namespace AML {
 	EulerAngles dcm2EulerAngles_XYZ(const Matrix33 &dcm);
 	EulerAngles eulerAnglesKinematics(const EulerAngles &angles, const Vector3 &bodyRates);					//w_b is the gyro reading also called body rates
 	Matrix33 eulerRatesMatrix_E_XYZ(const EulerAngles &angles);
-	EulerAngles integrateEulerAngles(const EulerAngles &angles, const EulerAngles &rates, double dt);
-	EulerAngles interpolate(const EulerAngles &startAngles, const EulerAngles &endAngles, double t);
+	EulerAngles integrateEulerAngles(const EulerAngles &angles, const EulerAngles &rates, float dt);
+	EulerAngles interpolate(const EulerAngles &startAngles, const EulerAngles &endAngles, float t);
 }
 
 

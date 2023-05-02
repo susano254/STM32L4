@@ -8,9 +8,9 @@
 namespace AML {
 	//Constructors
 	Vector3::Vector3() : x(0.0), y(0.0), z(0.0){}
-	Vector3::Vector3(double val) : x(val), y(val), z(val) {}
-	Vector3::Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
-	Vector3::Vector3(const double data[3]) : x(data[0]), y(data[1]), z(data[2]) {}
+	Vector3::Vector3(float val) : x(val), y(val), z(val) {}
+	Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+	Vector3::Vector3(const float data[3]) : x(data[0]), y(data[1]), z(data[2]) {}
 
 	//operators
 	//assignments for vector
@@ -39,25 +39,25 @@ namespace AML {
 		return *this;
 	}
 
-	Vector3& Vector3::operator+=(double rhs){
+	Vector3& Vector3::operator+=(float rhs){
 		x += rhs;
 		y += rhs;
 		z += rhs;
 		return *this;
 	}
-	Vector3& Vector3::operator-=(double rhs){
+	Vector3& Vector3::operator-=(float rhs){
 		x -= rhs;
 		y -= rhs;
 		z -= rhs;
 		return *this;
 	}
-	Vector3& Vector3::operator*=(double rhs){
+	Vector3& Vector3::operator*=(float rhs){
 		x *= rhs;
 		y *= rhs;
 		z *= rhs;
 		return *this;
 	}
-	Vector3& Vector3::operator/=(double rhs){
+	Vector3& Vector3::operator/=(float rhs){
 		x /= rhs;
 		y /= rhs;
 		z /= rhs;
@@ -76,16 +76,16 @@ namespace AML {
 	Vector3 operator/(const Vector3& lhs, const Vector3& rhs){ return (Vector3(lhs) /= rhs); }
 
 	// vector to scalar element wise operations
-	Vector3 operator+(const Vector3& lhs, double rhs){ return (Vector3(lhs) += rhs); }
-	Vector3 operator-(const Vector3& lhs, double rhs){ return (Vector3(lhs) -= rhs); }
-	Vector3 operator*(const Vector3& lhs, double rhs){ return (Vector3(lhs) *= rhs); }
-	Vector3 operator/(const Vector3& lhs, double rhs){ return (Vector3(lhs) /= rhs); }
-	Vector3 operator+(double lhs, const Vector3& rhs){ return (Vector3(lhs) += rhs); }
-	Vector3 operator-(double lhs, const Vector3& rhs){ return (Vector3(lhs) -= rhs); }
-	Vector3 operator*(double lhs, const Vector3& rhs){ return (Vector3(lhs) *= rhs); }
-	Vector3 operator/(double lhs, const Vector3& rhs){ return (Vector3(lhs) /= rhs); }
+	Vector3 operator+(const Vector3& lhs, float rhs){ return (Vector3(lhs) += rhs); }
+	Vector3 operator-(const Vector3& lhs, float rhs){ return (Vector3(lhs) -= rhs); }
+	Vector3 operator*(const Vector3& lhs, float rhs){ return (Vector3(lhs) *= rhs); }
+	Vector3 operator/(const Vector3& lhs, float rhs){ return (Vector3(lhs) /= rhs); }
+	Vector3 operator+(float lhs, const Vector3& rhs){ return (Vector3(lhs) += rhs); }
+	Vector3 operator-(float lhs, const Vector3& rhs){ return (Vector3(lhs) -= rhs); }
+	Vector3 operator*(float lhs, const Vector3& rhs){ return (Vector3(lhs) *= rhs); }
+	Vector3 operator/(float lhs, const Vector3& rhs){ return (Vector3(lhs) /= rhs); }
 
-	double invSqrt(float num){
+	float invSqrt(float num){
 		int32_t i;
 		float invSqrtEstimate;
 
@@ -111,29 +111,29 @@ namespace AML {
 		//apply second time optionally for better estimate
 		invSqrtEstimate = (1.5f - 0.5 * num * invSqrtEstimate * invSqrtEstimate)*invSqrtEstimate;
 
-		return (double) invSqrtEstimate;
+		return (float) invSqrtEstimate;
 	}
 
-	double norm(const Vector3& v){ 
-		double invMag = invSqrt(dot(v, v));
-		return (double) 1.0/invMag;
+	float norm(const Vector3& v){ 
+		float invMag = invSqrt(dot(v, v));
+		return (float) 1.0/invMag;
 	}
 	void normalize(Vector3& v){
-		double invMag = invSqrt(dot(v, v));
+		float invMag = invSqrt(dot(v, v));
 		v *= invMag;
 	}
 	Vector3 unit(const Vector3& v){
-		double mag = norm(v);
+		float mag = norm(v);
 		if(mag > 0.0) return (Vector3(v) / mag);
 		else 		  return Vector3(v);
 	}
 	Vector3 cross(const Vector3& lhs, const Vector3& rhs){
-		double x = (lhs.y * rhs.z) - (rhs.y * lhs.z);
-		double y = (lhs.z * rhs.x) - (lhs.x * rhs.z);
-		double z = (lhs.x * rhs.y) - (rhs.x * lhs.y);
+		float x = (lhs.y * rhs.z) - (rhs.y * lhs.z);
+		float y = (lhs.z * rhs.x) - (lhs.x * rhs.z);
+		float z = (lhs.x * rhs.y) - (rhs.x * lhs.y);
 		return Vector3(x, y, z);
 	}
-	double dot(const Vector3& lhs, const Vector3& rhs){
+	float dot(const Vector3& lhs, const Vector3& rhs){
 		return (lhs.x * rhs.x +  lhs.y * rhs.y + lhs.z * rhs.z);
 	}
 };

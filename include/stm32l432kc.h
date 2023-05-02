@@ -21,6 +21,7 @@
 #define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
 
 
+
 /**
   * @}
   */
@@ -156,7 +157,7 @@ typedef struct
 
 typedef struct
 {
-  __IO uint32_t CSR;         /*!< COMP control and status register, Address offset: 0x00 */
+  __IO uint32_t CSR;         /*!< 
 } COMP_TypeDef;
 
 typedef struct
@@ -787,69 +788,73 @@ typedef struct
 
 
 
-/**
-  \brief  Structure type to access the Nested Vectored Interrupt Controller (NVIC).
- */
-typedef struct
-{
-  __IOM uint32_t ISER[8U];               /*!< Offset: 0x000 (R/W)  Interrupt Set Enable Register */
-        uint32_t RESERVED0[24U];
-  __IOM uint32_t ICER[8U];               /*!< Offset: 0x080 (R/W)  Interrupt Clear Enable Register */
-        uint32_t RESERVED1[24U];
-  __IOM uint32_t ISPR[8U];               /*!< Offset: 0x100 (R/W)  Interrupt Set Pending Register */
-        uint32_t RESERVED2[24U];
-  __IOM uint32_t ICPR[8U];               /*!< Offset: 0x180 (R/W)  Interrupt Clear Pending Register */
-        uint32_t RESERVED3[24U];
-  __IOM uint32_t IABR[8U];               /*!< Offset: 0x200 (R/W)  Interrupt Active bit Register */
-        uint32_t RESERVED4[56U];
-  __IOM uint8_t  IP[240U];               /*!< Offset: 0x300 (R/W)  Interrupt Priority Register (8Bit wide) */
-        uint32_t RESERVED5[644U];
-  __OM  uint32_t STIR;                   /*!< Offset: 0xE00 ( /W)  Software Trigger Interrupt Register */
-}  NVIC_Type;
+// /**
+//   \brief  Structure type to access the Nested Vectored Interrupt Controller (NVIC).
+//  */
+// typedef struct
+// {
+//   __IOM uint32_t ISER[8U];               /*!< Offset: 0x000 (R/W)  Interrupt Set Enable Register */
+//         uint32_t RESERVED0[24U];
+//   __IOM uint32_t ICER[8U];               /*!< Offset: 0x080 (R/W)  Interrupt Clear Enable Register */
+//         uint32_t RESERVED1[24U];
+//   __IOM uint32_t ISPR[8U];               /*!< Offset: 0x100 (R/W)  Interrupt Set Pending Register */
+//         uint32_t RESERVED2[24U];
+//   __IOM uint32_t ICPR[8U];               /*!< Offset: 0x180 (R/W)  Interrupt Clear Pending Register */
+//         uint32_t RESERVED3[24U];
+//   __IOM uint32_t IABR[8U];               /*!< Offset: 0x200 (R/W)  Interrupt Active bit Register */
+//         uint32_t RESERVED4[56U];
+//   __IOM uint8_t  IP[240U];               /*!< Offset: 0x300 (R/W)  Interrupt Priority Register (8Bit wide) */
+//         uint32_t RESERVED5[644U];
+//   __OM  uint32_t STIR;                   /*!< Offset: 0xE00 ( /W)  Software Trigger Interrupt Register */
+// }  NVIC_Type;
 
 
-/**
-  \brief  Structure type to access the System Control Block (SCB).
- */
-typedef struct
-{
-  __IM  uint32_t CPUID;                  /*!< Offset: 0x000 (R/ )  CPUID Base Register */
-  __IOM uint32_t ICSR;                   /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register */
-  __IOM uint32_t VTOR;                   /*!< Offset: 0x008 (R/W)  Vector Table Offset Register */
-  __IOM uint32_t AIRCR;                  /*!< Offset: 0x00C (R/W)  Application Interrupt and Reset Control Register */
-  __IOM uint32_t SCR;                    /*!< Offset: 0x010 (R/W)  System Control Register */
-  __IOM uint32_t CCR;                    /*!< Offset: 0x014 (R/W)  Configuration Control Register */
-  __IOM uint8_t  SHP[12U];               /*!< Offset: 0x018 (R/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) */
-  __IOM uint32_t SHCSR;                  /*!< Offset: 0x024 (R/W)  System Handler Control and State Register */
-  __IOM uint32_t CFSR;                   /*!< Offset: 0x028 (R/W)  Configurable Fault Status Register */
-  __IOM uint32_t HFSR;                   /*!< Offset: 0x02C (R/W)  HardFault Status Register */
-  __IOM uint32_t DFSR;                   /*!< Offset: 0x030 (R/W)  Debug Fault Status Register */
-  __IOM uint32_t MMFAR;                  /*!< Offset: 0x034 (R/W)  MemManage Fault Address Register */
-  __IOM uint32_t BFAR;                   /*!< Offset: 0x038 (R/W)  BusFault Address Register */
-  __IOM uint32_t AFSR;                   /*!< Offset: 0x03C (R/W)  Auxiliary Fault Status Register */
-  __IM  uint32_t PFR[2U];                /*!< Offset: 0x040 (R/ )  Processor Feature Register */
-  __IM  uint32_t DFR;                    /*!< Offset: 0x048 (R/ )  Debug Feature Register */
-  __IM  uint32_t ADR;                    /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register */
-  __IM  uint32_t MMFR[4U];               /*!< Offset: 0x050 (R/ )  Memory Model Feature Register */
-  __IM  uint32_t ISAR[5U];               /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register */
-        uint32_t RESERVED0[5U];
-  __IOM uint32_t CPACR;                  /*!< Offset: 0x088 (R/W)  Coprocessor Access Control Register */
-} SCB_Type;
+// /**
+//   \brief  Structure type to access the System Control Block (SCB).
+//  */
+// typedef struct
+// {
+//   __IM  uint32_t CPUID;                  /*!< Offset: 0x000 (R/ )  CPUID Base Register */
+//   __IOM uint32_t ICSR;                   /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register */
+//   __IOM uint32_t VTOR;                   /*!< Offset: 0x008 (R/W)  Vector Table Offset Register */
+//   __IOM uint32_t AIRCR;                  /*!< Offset: 0x00C (R/W)  Application Interrupt and Reset Control Register */
+//   __IOM uint32_t SCR;                    /*!< Offset: 0x010 (R/W)  System Control Register */
+//   __IOM uint32_t CCR;                    /*!< Offset: 0x014 (R/W)  Configuration Control Register */
+//   __IOM uint8_t  SHP[12U];               /*!< Offset: 0x018 (R/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) */
+//   __IOM uint32_t SHCSR;                  /*!< Offset: 0x024 (R/W)  System Handler Control and State Register */
+//   __IOM uint32_t CFSR;                   /*!< Offset: 0x028 (R/W)  Configurable Fault Status Register */
+//   __IOM uint32_t HFSR;                   /*!< Offset: 0x02C (R/W)  HardFault Status Register */
+//   __IOM uint32_t DFSR;                   /*!< Offset: 0x030 (R/W)  Debug Fault Status Register */
+//   __IOM uint32_t MMFAR;                  /*!< Offset: 0x034 (R/W)  MemManage Fault Address Register */
+//   __IOM uint32_t BFAR;                   /*!< Offset: 0x038 (R/W)  BusFault Address Register */
+//   __IOM uint32_t AFSR;                   /*!< Offset: 0x03C (R/W)  Auxiliary Fault Status Register */
+//   __IM  uint32_t PFR[2U];                /*!< Offset: 0x040 (R/ )  Processor Feature Register */
+//   __IM  uint32_t DFR;                    /*!< Offset: 0x048 (R/ )  Debug Feature Register */
+//   __IM  uint32_t ADR;                    /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register */
+//   __IM  uint32_t MMFR[4U];               /*!< Offset: 0x050 (R/ )  Memory Model Feature Register */
+//   __IM  uint32_t ISAR[5U];               /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register */
+//         uint32_t RESERVED0[5U];
+//   __IOM uint32_t CPACR;                  /*!< Offset: 0x088 (R/W)  Coprocessor Access Control Register */
+// } SCB_Type;
 
 
 
 
-/**
-  \brief  Structure type to access the System Timer (SysTick).
- */
-typedef struct
-{
-  __IOM uint32_t CTRL;                   /*!< Offset: 0x000 (R/W)  SysTick Control and Status Register */
-  __IOM uint32_t LOAD;                   /*!< Offset: 0x004 (R/W)  SysTick Reload Value Register */
-  __IOM uint32_t VAL;                    /*!< Offset: 0x008 (R/W)  SysTick Current Value Register */
-  __IM  uint32_t CALIB;                  /*!< Offset: 0x00C (R/ )  SysTick Calibration Register */
-} SysTick_Type;
+// /**
+//   \brief  Structure type to access the System Timer (SysTick).
+//  */
+// typedef struct
+// {
+//   __IOM uint32_t CTRL;                   /*!< Offset: 0x000 (R/W)  SysTick Control and Status Register */
+//   __IOM uint32_t LOAD;                   /*!< Offset: 0x004 (R/W)  SysTick Reload Value Register */
+//   __IOM uint32_t VAL;                    /*!< Offset: 0x008 (R/W)  SysTick Current Value Register */
+//   __IM  uint32_t CALIB;                  /*!< Offset: 0x00C (R/ )  SysTick Calibration Register */
+// } SysTick_Type;
 
+
+// typedef struct {
+  
+// }
 
 
 
@@ -934,24 +939,24 @@ typedef enum
 
 
 
-/* Memory mapping of Core Hardware */
-#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
-#define ITM_BASE            (0xE0000000UL)                            /*!< ITM Base Address */
-#define DWT_BASE            (0xE0001000UL)                            /*!< DWT Base Address */
-#define TPI_BASE            (0xE0040000UL)                            /*!< TPI Base Address */
-#define CoreDebug_BASE      (0xE000EDF0UL)                            /*!< Core Debug Base Address */
-#define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
-#define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
-#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
+// /* Memory mapping of Core Hardware */
+// #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
+// #define ITM_BASE            (0xE0000000UL)                            /*!< ITM Base Address */
+// #define DWT_BASE            (0xE0001000UL)                            /*!< DWT Base Address */
+// #define TPI_BASE            (0xE0040000UL)                            /*!< TPI Base Address */
+// #define CoreDebug_BASE      (0xE000EDF0UL)                            /*!< Core Debug Base Address */
+// #define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
+// #define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
+// #define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
 
-#define SCnSCB              ((SCnSCB_Type    *)     SCS_BASE      )   /*!< System control Register not in SCB */
-#define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
-#define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
-#define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct */
-#define ITM                 ((ITM_Type       *)     ITM_BASE      )   /*!< ITM configuration struct */
-#define DWT                 ((DWT_Type       *)     DWT_BASE      )   /*!< DWT configuration struct */
-#define TPI                 ((TPI_Type       *)     TPI_BASE      )   /*!< TPI configuration struct */
-#define CoreDebug           ((CoreDebug_Type *)     CoreDebug_BASE)   /*!< Core Debug configuration struct */
+// #define SCnSCB              ((SCnSCB_Type    *)     SCS_BASE      )   /*!< System control Register not in SCB */
+// #define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
+// #define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
+// #define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct */
+// #define ITM                 ((ITM_Type       *)     ITM_BASE      )   /*!< ITM configuration struct */
+// #define DWT                 ((DWT_Type       *)     DWT_BASE      )   /*!< DWT configuration struct */
+// #define TPI                 ((TPI_Type       *)     TPI_BASE      )   /*!< TPI configuration struct */
+// #define CoreDebug           ((CoreDebug_Type *)     CoreDebug_BASE)   /*!< Core Debug configuration struct */
 
 /**
   * @}
@@ -1116,8 +1121,8 @@ typedef enum
 #define LPTIM2              ((LPTIM_TypeDef *) LPTIM2_BASE)
 
 #define SYSCFG              ((SYSCFG_TypeDef *) SYSCFG_BASE)
-#define COMP1               ((COMP_TypeDef *) COMP1_BASE)
-#define COMP2               ((COMP_TypeDef *) COMP2_BASE)
+#define COMPARATOR1               ((COMP_TypeDef *) COMP1_BASE)
+#define COMPARATOR2               ((COMP_TypeDef *) COMP2_BASE)
 #define COMP12_COMMON       ((COMP_Common_TypeDef *) COMP2_BASE)
 #define EXTI                ((EXTI_TypeDef *) EXTI_BASE)
 #define FIREWALL            ((FIREWALL_TypeDef *) FIREWALL_BASE)
@@ -1169,5 +1174,18 @@ typedef enum
 #define QUADSPI             ((QUADSPI_TypeDef *) QSPI_R_BASE)
 
 #define DBGMCU              ((DBGMCU_TypeDef *) DBGMCU_BASE)
+
+
+// namespace global {
+//   extern I2C_TypeDef *I2C1_Base;
+//   extern RCC_TypeDef *RCC_Base;
+//   extern GPIO_TypeDef *GPIOA_Base;
+//   extern GPIO_TypeDef *GPIOB_Base;
+//   extern GPIO_TypeDef *GPIOC_Base;
+//   extern USART_TypeDef *USART2_Base;
+//   extern SPI_TypeDef *SPI1_Base;
+//   // extern NVIC_Type* NVIC_Base;
+// }
+
 
 #endif

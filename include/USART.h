@@ -2,6 +2,10 @@
 #define 	USART_H
 
 #include <stm32l432kc.h>
+#include <string>
+
+using namespace std;
+
 
 #define HAL_USART_ERROR_NONE		((uint32_t) 0x00)	//No Error
 #define HAL_USART_ERROR_PE			((uint32_t) 0x01)	//Parity Error
@@ -109,18 +113,15 @@ typedef struct {
 	rx_callback_t		*rx_callback;
 } usart_handle_t;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	void hal_usart_init(usart_handle_t *handle);
-	void hal_usart_tx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
-	void hal_usart_rx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
-	void hal_usart_handle_interrupt(usart_handle_t *handle);
 
-	void USART2Init(int baudRate, const uint8_t clock);
-	void USART_EnableInterrupt(USART_TypeDef * USARTx, uint8_t interruptNumber);
-	void USART2SendByte(uint8_t byte);
-	void USART2Send(uint8_t *pData, uint16_t size);
+struct VirtualPort {
+	int stringIndex = 0;
+	string buffer;
+	bool RXNE = false;
+
+	void begin(int baudRate);
+	void sendByte(uint8_t byte);
+	void send(uint8_t *pData, uint16_t size);
 	void printStrln(char *str);
 	void printStr(char *str);
 	int length(char *str);
@@ -128,8 +129,60 @@ extern "C" {
 	void floatToStr(float num, char *str);
 	void printInt(int num);
 	void printFloat(float num);
-#ifdef __cplusplus
+	bool isAvailable();
+	string recieve();
+};
+
+void USART_EnableInterrupt(USART_TypeDef * USARTx, uint8_t interruptNumber);
+
+struct USARTx {
+	void hal_usart_init(usart_handle_t *handle);
+	void hal_usart_tx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
+	void hal_usart_rx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
+	void hal_usart_handle_interrupt(usart_handle_t *handle);
+
+	private:
+
+	void hal_usart_enable(USART_TypeDef *USARTx);
+	void hal_usart_disable(USART_TypeDef *USARTx);
+	void hal_usart_tx_enable(USART_TypeDef *USARTx);
+	void hal_usart_tx_disable(USART_TypeDef *USARTx);
+	void hal_usart_rx_enable(USART_TypeDef *USARTx);
+	void hal_usart_rx_disable(USART_TypeDef *USARTx);
+	void hal_usart_error_interrupt_enable(USART_TypeDef *USARTx);
+	void hal_usart_error_interrupt_disable(USART_TypeDef *USARTx);
+	void hal_usart_configure_world_length(USART_TypeDef *USARTx, uint8_t worldLength);
+	void hal_usart_configure_stop_bits(USART_TypeDef *USARTx, uint8_t nstop);
+	void hal_usart_configure_over_sampling(USART_TypeDef *USARTx, uint8_t over8);
+};
+
+
+namespace global {
+	extern VirtualPort Serial;
 }
-#endif
+
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
+// 	void hal_usart_init(usart_handle_t *handle);
+// 	void hal_usart_tx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
+// 	void hal_usart_rx(usart_handle_t *handle, uint8_t *buffer, uint32_t len);
+// 	void hal_usart_handle_interrupt(usart_handle_t *handle);
+
+// 	void USART2Init(int baudRate, const uint8_t clock);
+// 	void USART_EnableInterrupt(USART_TypeDef * USARTx, uint8_t interruptNumber);
+// 	void USART2SendByte(uint8_t byte);
+// 	void USART2Send(uint8_t *pData, uint16_t size);
+// 	void printStrln(char *str);
+// 	void printStr(char *str);
+// 	int length(char *str);
+// 	void intToStr(int num, char *str);
+// 	void floatToStr(float num, char *str);
+// 	void printInt(int num);
+// 	void printFloat(float num);
+// #ifdef __cplusplus
+// }
+// #endif
+
 
 #endif
