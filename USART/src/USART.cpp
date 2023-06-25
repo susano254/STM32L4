@@ -217,6 +217,11 @@ void VirtualPort::printFloat(float num){
 	floatToStr(num, str);
 	printStr(str);
 }
+string VirtualPort::floatToStr(float num){
+	char str[30];
+	floatToStr(num, str);
+	return string(str);
+}
 void VirtualPort::printInt(int num) {
         char str[30];
 	intToStr(num, str);

@@ -127,6 +127,7 @@ struct VirtualPort {
 	int length(char *str);
 	void intToStr(int num, char *str);
 	void floatToStr(float num, char *str);
+	string floatToStr(float num);
 	void printInt(int num);
 	void printFloat(float num);
 	bool isAvailable();

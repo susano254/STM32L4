@@ -15,7 +15,7 @@
 using namespace AML;
 
 struct MPU_t {
-	bool calibrated = false;
+	bool calibrated = true;
 
 	Vector3 acc;
 	Vector3 accError;
@@ -49,16 +49,29 @@ struct MPU_t {
 	void printErrors();
 	void printAngles();
 	void calibrate();
+	void calibrateAcc();
+	void calibrateGyro();
+	void calibrateMag();
 	void calculateAngles(float dt);
 };
 
 
+struct Madgwick {
+	float beta;
+	Quaternion q;
+	Vector3 error;
+
+	Madgwick() : beta(0.1f), q(1, 0, 0, 0), error(0.0f) {}
+	Madgwick(float beta) : beta(beta), q(1, 0, 0, 0), error(0.0f) {}
+	EulerAngles update(Vector3 &acc, Vector3 &gyro, float dt);
+};
 struct Mahony {
 	float kp, ki;
 	Quaternion q;
 	Vector3 error;
 
-	Mahony() : kp(0.0), ki(0.0), q(1, 0, 0, 0), error(0.0) {}
+	Mahony() : kp(0.0f), ki(0.0f), q(1, 0, 0, 0), error(0.0f) {}
+	Mahony(float kp, float ki) : kp(kp), ki(ki), q(1, 0, 0, 0), error(0.0f) {}
 	EulerAngles update(Vector3 &acc, Vector3 &gyro, float dt);
 };
 
