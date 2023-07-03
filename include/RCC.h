@@ -1102,7 +1102,8 @@ namespace global {
 	extern USART_TypeDef *USART2_Base;
 	extern SPI_TypeDef *SPI1_Base;
 	extern NVIC_Type* NVIC_Base;
-	extern FLASH_TypeDef* FLASH_Base;
+	extern SysTick_Type *SysTick_Base;
+	extern FLASH_TypeDef *FLASH_Base;
 }
 
 #ifdef __cplusplus

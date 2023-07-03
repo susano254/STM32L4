@@ -1356,9 +1356,12 @@ struct System_t {
 
 struct Systick_t {
 	uint32_t reload;
+  uint32_t micros;
 
-	void Init(uint32_t reload = 0xffffff);
+	void Init(uint32_t reload = 10);
+	float getMicros();
 	float getDeltaT();
+	float getDeltaT(float last_micros);
 };
 
 

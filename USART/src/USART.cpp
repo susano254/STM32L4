@@ -302,6 +302,7 @@ bool VirtualPort::isAvailable() {
 	return false;
 }
 string VirtualPort::recieve() {
+	while(!Serial.isAvailable());
 	RXNE = false;
 	string temp = buffer;
 	buffer.clear();

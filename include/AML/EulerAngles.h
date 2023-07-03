@@ -13,6 +13,9 @@ namespace AML {
 			struct {
 				float phi, theta, psi;
 			};
+			struct {
+				float roll, pitch, yaw;
+			};
 		};
 	private:
 		EulerSequence seq;

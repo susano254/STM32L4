@@ -167,7 +167,15 @@ void QuadCopter::init_motors(){
 void QuadCopter::init_controllers() {
 	controllers.Roll.kp = 0.00;
 	controllers.Roll.kd = 0.00;
-	controllers.Roll.ki = 0.00     ;
+	controllers.Roll.ki = 0.00;
+
+	controllers.Pitch.kp = 0.00;
+	controllers.Pitch.kd = 0.00;
+	controllers.Pitch.ki = 0.00;
+
+	controllers.Yaw.kp = 0.00;
+	controllers.Yaw.kd = 0.00;
+	controllers.Yaw.ki = 0.00;
 }
 
 void QuadCopter::Init(){
@@ -201,7 +209,10 @@ void QuadCopter::IMU_Read(bool print){
 	mpu.readAcc();
 	mpu.readGyro();
 	mpu.readMag();
-	mpu.calculateAngles(Systick.getDeltaT());
+	dt = Systick.getDeltaT();
+	//mpu.calculateAngles(dt);
+	// mpu.angles = mahony.update(mpu.acc, mpu.gyro, dt);
+	// mpu.angles = madgwick.MadgwickQuaternionUpdate(mpu.acc, mpu.gyro, mpu.mag, dt);
 	if(print)
 		mpu.printValues();
 }
@@ -209,7 +220,7 @@ void QuadCopter::IMU_Read(bool print){
 void QuadCopter::Control() {
 	dt = (micros - prev_micros) * 0.000001;
 	prev_micros = micros;
-	controllers.Roll.run(desired_roll, mpu.roll, dt);
+	controllers.Roll.run(desired_roll, mpu.angles.roll, dt);
 	// Pitch_Controller.run(0, mpu.pitch, dt);
 	// Yaw_Controller.run(0, mpu.yaw, dt);
 	// Altitude_Controller.run(1, mpu.altitude, dt);

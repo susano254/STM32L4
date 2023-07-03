@@ -10,7 +10,8 @@ namespace global {
 	GPIO_TypeDef *GPIOC_Base = GPIOC;
 	USART_TypeDef *USART2_Base = USART2;
 	SPI_TypeDef *SPI1_Base = SPI1;
-	NVIC_Type* NVIC_Base = NVIC;
+	NVIC_Type *NVIC_Base = NVIC;
+	SysTick_Type *SysTick_Base = SysTick;
 	FLASH_TypeDef* FLASH_Base = FLASH;
 }
 // sets the msi range

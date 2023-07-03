@@ -1,12 +1,15 @@
 #include <RCC.h>
 #include <FLASH.h>
 #include <Core.h>
+#include <USART.h>
 
 namespace global {
 	NVIC_t Nvic;
 	Systick_t Systick;
 	System_t System;
 }
+
+using namespace global;
 
 void NVIC_t::clearPending(uint8_t interruptNumber){
 	uint8_t reg = interruptNumber/32;
@@ -23,21 +26,38 @@ void NVIC_t::enableInterrupt(uint8_t interruptNumber){
 }
 
 
-void Systick_t::Init(uint32_t reload = 0xffffff){
+void Systick_t::Init(uint32_t reload){
 	this->reload = reload;
 	//init systick
 	SysTick->LOAD = reload;
 	SysTick->VAL = 0;
-	SysTick->CTRL |= 1 << 0;
+	SysTick->CTRL |= 3 << 0;
+}
+
+float Systick_t::getDeltaT(float last_micros){
+	float dt;
+	dt = micros - last_micros;
+	dt *= 0.000001f;
+
+	return dt;
+}
+
+float Systick_t::getMicros(){
+	return Systick.micros;
 }
 
 float Systick_t::getDeltaT(){
 	float dt;
 	dt = 0xffffff - SysTick->VAL;
-	dt *= 0.0000001;
+	dt *= 0.0000001f;
 	SysTick->VAL = 0;
 
 	return dt;
+}
+extern "C" {
+	void SysTick_Handler(){
+		Systick.micros++;
+	}
 }
 
 void System_t::Init() {

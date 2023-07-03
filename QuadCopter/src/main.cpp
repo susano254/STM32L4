@@ -50,8 +50,16 @@ vector<string> split(string &str, char delimiter){
 }
 
 
+typedef union {
+	uint64_t value;
+	struct {
+		uint32_t lower, higher;
+	};
+} big_int;
+
 int main(){
 	System.Init();
+	Systick.Init();
 	Serial.begin(115200);
 
 	copter.Init();

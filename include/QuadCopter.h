@@ -84,6 +84,7 @@ struct QuadCopter {
 	uint32_t prev_micros = 0;
 	vector<Motor> motors;
 	MPU_t mpu;
+	Madgwick madgwick;
 	NRF24 nrf;
 	float dt;
 	float desired_roll = 0, desired_pitch = 0, desired_yaw = 0;
@@ -94,7 +95,7 @@ struct QuadCopter {
 	} controllers;
 
 
-	QuadCopter() : controllers{ Controller(), Controller(), Controller(), Controller() } {}
+	QuadCopter() : controllers{ Controller(), Controller(), Controller(), Controller() }, madgwick(1.5) {}
 	void Init();
 	void NRF_Read(bool);
 	// void NRF_Send();
