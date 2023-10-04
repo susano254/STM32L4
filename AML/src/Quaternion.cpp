@@ -1,5 +1,7 @@
 #include <Quaternion.h>
 
+#define sqrtf(x) (1.0f / invSqrt(x))
+
 namespace AML {
 	//Constructors
 	Quaternion::Quaternion() 
@@ -109,7 +111,7 @@ namespace AML {
 
 	//Quat operations
 	Quaternion conjugate(const Quaternion &q){ return Quaternion(q.q0, -q.q1, -q.q2, -q.q3); }
-	float norm(const Quaternion &q){ return sqrt(q.q0*q.q0 + q.q1*q.q1 + q.q2*q.q2 + q.q3*q.q3); }
+	float norm(const Quaternion &q){ return sqrtf(q.q0*q.q0 + q.q1*q.q1 + q.q2*q.q2 + q.q3*q.q3); }
 	Quaternion inverse(const Quaternion &q){ return conjugate(q)/norm(q); }
 	Quaternion unit(const Quaternion &q){
 		float mag = norm(q);
@@ -117,7 +119,7 @@ namespace AML {
 		return Quaternion(q);
 	}
 	void normalise(Quaternion &q){ q = unit(q); }
-	bool isUnitQuat(const Quaternion &q, float tolerance){ return (fabs(norm(q) - 1.0) < 2.0*tolerance); }
+	bool isUnitQuat(const Quaternion &q, float tolerance){ return (fabsf(norm(q) - 1.0f) < 2.0f*tolerance); }
 	float dot(const Quaternion &lhs, const Quaternion &rhs){ return (lhs.q0*rhs.q0 + lhs.q1*rhs.q1 + lhs.q2*rhs.q2 + lhs.q3*rhs.q3); }
 
 	//Converions
@@ -153,28 +155,28 @@ namespace AML {
 
 			float den, q0, q1, q2, q3;
 			if( q1_den > q2_den && q1_den > q3_den && q1_den > q4_den ){
-				den = sqrt(q1_den);
+				den = sqrtf(q1_den);
 				q0 = 0.5*den;
 				q1 = 0.5*r23mr32/den;
 				q2 = 0.5*r31mr13/den;
 				q3 = 0.5*r12mr21/den;
 			}
 			if( q2_den > q1_den && q2_den > q3_den && q2_den > q4_den ){
-				den = sqrt(q2_den);
+				den = sqrtf(q2_den);
 				q0 = 0.5*r23mr32/den;
 				q1 = 0.5*den;
 				q2 = 0.5*r12pr21/den;
 				q3 = 0.5*r31pr13/den;
 			}
 			if( q3_den > q1_den && q3_den > q2_den && q3_den > q4_den ){
-				den = sqrt(q3_den);
+				den = sqrtf(q3_den);
 				q0 = 0.5*r31mr13/den;
 				q1 = 0.5*r12pr21/den;
 				q2 = 0.5*den;
 				q3 = 0.5*r23pr32/den;
 			}
 			if( q4_den > q1_den && q4_den > q2_den && q4_den > q3_den ){
-				den = sqrt(q4_den);
+				den = sqrtf(q4_den);
 				q0 = 0.5*r12mr21/den;
 				q1 = 0.5*r31pr13/den;
 				q2 = 0.5*r23pr32/den;
@@ -196,7 +198,7 @@ namespace AML {
 	}
 
 	EulerAngles quat2EulerAngles(const Quaternion &q, const EulerAngles::EulerSequence seq){
-		if(isUnitQuat(q)){
+		if(isUnitQuat(q, 0.01f)){
 			switch(seq){
 				case EulerAngles::EulerSequence::XYZ:
 					return quat2EulerAngles_XYZ(q);
@@ -245,6 +247,7 @@ namespace AML {
 
 	//Kinematic functions
 	Quaternion integrateQuat(const Quaternion &quat, const Quaternion &quatRates, float dt){
+		// q_dot = quatRates
 		Quaternion quat_new = quat + quatRates*dt;
 		normalise(quat_new);
 

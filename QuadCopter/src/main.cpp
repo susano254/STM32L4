@@ -63,19 +63,26 @@ int main(){
 	Serial.begin(115200);
 
 	copter.Init();
+
+	Madgwick madgwick(0.10f);
+
+	System.reset_cyclic_counter();
+	System.enable_cyclic_counter();
 	while(1){
-		// copter.dt = Systick.getDeltaT();
-		//receive data from nrf
-		copter.NRF_Read(false);
+		// // receive data from nrf
+		// copter.NRF_Read(false);
 		//read the IMU
-		copter.IMU_Read(false);
+		copter.IMU_Update(madgwick, false);
 		//controllers
 		copter.Control();
 
 		if(Serial.isAvailable()){
 			receive();
 		}
-		print_data();
+		// copter.mpu.printGyro();
+		// copter.mpu.printAcc();
+		copter.mpu.printQuaternion();
+		// print_data();
 	}
 }
 

@@ -22,40 +22,35 @@ int main(){
 	//while(1);
 
 	Mahony mahony(2.5, 0.0f);
-	Madgwick madgwick(1.5);
+	Madgwick madgwick(0.5f);
+	ZeroVelocityUpdate gyroFilter(5, Vector3(3.0f, 3.0f, 3.0f));
 
+	uint32_t millis = 0;
 	uint32_t micros = 0;
-
-	//for(int i = 0; i < 5; i++){
-	//	mpu.readAcc();
-	//	mpu.readGyro();
-	//	mpu.readMag();
-	//	
-	//	dt = Systick.getDeltaT(micros);
-	//	micros = Systick.getMicros();
-
-	//	madgwick.MadgwickQuaternionUpdate(mpu.acc, mpu.gyro, mpu.mag, dt, false);
-	//	madgwick.offset_q = inverse(madgwick.q);
-	//	madgwick.offset_angles = quat2EulerAngles(madgwick.offset_q);
-	//	madgwick.offset_angles.phi *= (180.0f/M_PIf);
-	//	madgwick.offset_angles.theta *= (180.0f/M_PIf);
-	//	madgwick.offset_angles.psi *= (180.0f/M_PIf);
-	//}
-
 	while(1){
 		mpu.readAcc();
 		mpu.readGyro();
 		mpu.readMag();
 		
-		dt = Systick.getDeltaT(micros);
-		micros = Systick.getMicros();
+		mpu.printGyro();
+		// float dt_1 = Systick.getDeltaT(millis);
+		// millis = Systick.millis;
+
+		// dt = System.getDeltaT(micros);
+		// micros = System.getMicros();
 
 		// mpu.calculateAngles(dt);
 		// mpu.angles = mahony.update(mpu.acc, mpu.gyro, dt);
 		// mpu.angles = madgwick.update(mpu.acc, mpu.gyro, dt);
-		mpu.angles = madgwick.MadgwickQuaternionUpdate(mpu.acc, mpu.gyro, mpu.mag, dt, false); 
 
-		madgwick.printQuaternion();
+		// mpu.gyro = gyroFilter.update(mpu.gyro);
+		// mpu.q = madgwick.MadgwickQuaternionUpdate(mpu.acc, mpu.gyro, mpu.mag, dt); 
+		// mpu.printQuaternion();
+
+		// mpu.printAcc();
+		// mpu.printAccG();
+		// mpu.printVelocity();
+		// mpu.printPosition();
 		// mpu.printAngles();
 		// mpu.printValues();
 	}

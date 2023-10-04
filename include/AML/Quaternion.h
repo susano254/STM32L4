@@ -5,6 +5,7 @@
 #include "Matrix33.h"
 #include "EulerAngles.h"
 #include "DCM.h"
+#include <limits>
 #include <cmath>
 
 namespace AML {

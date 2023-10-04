@@ -118,9 +118,9 @@ namespace AML {
 		float invMag = invSqrt(dot(v, v));
 		return (float) 1.0/invMag;
 	}
-	void normalize(Vector3& v){
+	Vector3 normalize(Vector3& v){
 		float invMag = invSqrt(dot(v, v));
-		v *= invMag;
+		return v * invMag;
 	}
 	Vector3 unit(const Vector3& v){
 		float mag = norm(v);

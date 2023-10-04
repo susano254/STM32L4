@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#define M_PIf ((float) M_PI)
+
 
 using namespace AML;
 using namespace global;
@@ -76,16 +76,12 @@ void MPU_t::Init(){
 	buffer[0] = (3 << 3);
 	i2c_master_tx(&i2c_handle, MPU, 0x1B, buffer, 1);
 
-	//set gyro digital low pass filter (the higher the value = more delay)
-	buffer[0] = 0x3;
-	i2c_master_tx(&i2c_handle, MPU, 0x1A, buffer, 1);
-
 	//set acc range to be 8g
 	buffer[0] = (2 << 3);
 	i2c_master_tx(&i2c_handle, MPU, 0x1C, buffer, 1);
 
 	//set acc digital low pass filter (the higher the value = more delay)
-	buffer[0] = 0x3;
+	buffer[0] = 0x6;
 	i2c_master_tx(&i2c_handle, MPU, 0x1D, buffer, 1);
 
 	//enable bypass multiplexer to access magnetometer and bmp
@@ -367,14 +363,63 @@ void MPU_t::readMag(){
 	}
 }
 
-void MPU_t::calculateAngles(float dt){
+Vector3 ZeroVelocityUpdate::update(Vector3 &v, Vector3 threshold){
+	Vector3 filteredV;
+
+	fifo.push_back(v);
+	filteredV = fifo.getAverage();
+
+	if(abs(filteredV.data[0]) < threshold.data[0]) filteredV.data[0] = 0;
+	if(abs(filteredV.data[1]) < threshold.data[1]) filteredV.data[1] = 0;
+	if(abs(filteredV.data[2]) < threshold.data[2]) filteredV.data[2] = 0;
+
+	return filteredV;
+}
+Vector3 ZeroVelocityUpdate::update(Vector3 &v){
+	Vector3 filteredV;
+
+	fifo.push_back(v);
+	filteredV = fifo.getAverage();
+
+	if(abs(filteredV.data[0]) < th.data[0]) filteredV.data[0] = 0;
+	if(abs(filteredV.data[1]) < th.data[1]) filteredV.data[1] = 0;
+	if(abs(filteredV.data[2]) < th.data[2]) filteredV.data[2] = 0;
+
+	return filteredV;
+}
+
+void MPU_t::ZeroVelocityUpdate() {
+	static FIFO accFifo(5);
+	accFifo.push_back(acc);
+
+	avgAcc = accFifo.getAverage();
+
+	if(abs(avgAcc.data[0]) < 0.01f) avgAcc.data[0] = 0;
+	if(abs(avgAcc.data[1]) < 0.01f) avgAcc.data[1] = 0;
+	if(abs(avgAcc.data[2]) < 0.01f) avgAcc.data[2] = 0;
+
+	if(avgAcc.data[0] == 0) {
+		velocity.data[0] = 0;
+		prev_velocity.data[0] = 0;
+	}
+	if(avgAcc.data[1] == 0){ 
+		velocity.data[1] = 0;
+		prev_velocity.data[1] = 0;
+	}
+	if(avgAcc.data[2] == 0){
+		velocity.data[2] = 0;
+		prev_velocity.data[2] = 0;
+	}
+}
+
+void MPU_t::calculateAngles(float dt) {
 	float accRoll, accPitch, magYaw;
 	float roll, pitch, yaw;
 	roll = angles.data[0];
 	pitch = angles.data[1];
 	yaw = angles.data[2];
 
-	normalize(acc);
+	Vector3 acc_n = normalize(acc);
 	float ax, ay, az;
 	float gx, gy, gz;
 	float mx, my, mz;
@@ -414,111 +459,30 @@ void MPU_t::calculateAngles(float dt){
 	// angles.data[2] = yaw;
 	angles.data[2] += gz*dt;
 }
-void MPU_t::printValues(){
-	string s;
-	s.append(Serial.floatToStr(acc.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(acc.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(acc.data[2]));
-	s.append("\t");
-	s.append(Serial.floatToStr(gyro.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(gyro.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(gyro.data[2]));
-	s.append("\t");
-	s.append(Serial.floatToStr(mag.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(mag.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(mag.data[2]));
-	s.append("\t");
-	s.append(Serial.floatToStr(angles.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(angles.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(angles.data[2]));
-	Serial.printStrln((char*) s.c_str());
+void MPU_t::calculatePosition(float dt) {
+	Vector3 acc_g = avgAcc*981;
+
+	// Integrate linear acceleration to obtain velocity
+    velocity = prev_velocity + acc_g * dt;
+
+    // Integrate velocity to obtain position
+    position = prev_position + velocity * dt;
+
+	prev_velocity = velocity;
+	prev_position = position;
 }
 
-void MPU_t::printAcc(){
-	string s;
-	s.append(Serial.floatToStr(acc.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(acc.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(acc.data[2]));
-	Serial.printStrln((char*) s.c_str());
-}
 
-void MPU_t::printGyro(){
-	string s;
-	s.append(Serial.floatToStr(gyro.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(gyro.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(gyro.data[2]));
-	Serial.printStrln((char*) s.c_str());
-}
-
-void MPU_t::printMag(){
-	string s;
-	s.append(Serial.floatToStr(mag.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(mag.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(mag.data[2]));
-	Serial.printStrln((char*) s.c_str());
-}
-
-void MPU_t::printAngles(){
-	string s;
-	s.append(Serial.floatToStr(angles.data[0]));
-	s.append("\t");
-	s.append(Serial.floatToStr(angles.data[1]));
-	s.append("\t");
-	s.append(Serial.floatToStr(angles.data[2]));
-	Serial.printStrln((char*) s.c_str());
-}
-
-void Madgwick::printQuaternion() {
-	string s;
-	s.append(Serial.floatToStr(q.qw));
-	s.append("\t");
-	s.append(Serial.floatToStr(q.qx));
-	s.append("\t");
-	s.append(Serial.floatToStr(q.qy));
-	s.append("\t");
-	s.append(Serial.floatToStr(q.qz));
-	Serial.printStrln((char*) s.c_str());
-}
-
-void MPU_t::printErrors() {
-	Serial.printFloat(accError.data[0]);
-	Serial.printStr(",\t");
-	Serial.printFloat(accError.data[1]);
-	Serial.printStr(",\t");
-	Serial.printFloat(accError.data[2]);
-	Serial.printStr(",\t\t");
-	Serial.printFloat(gyroError.data[0]);
-	Serial.printStr(",\t");
-	Serial.printFloat(gyroError.data[1]);
-	Serial.printStr(",\t");
-	Serial.printFloat(gyroError.data[2]);
-	Serial.sendByte('\n');
-}
-
-EulerAngles Mahony::update(Vector3 &acc, Vector3 &gyro_degrees, float dt) {
+Quaternion Mahony::update(Vector3 &acc, Vector3 &gyro_degrees, float dt) {
 	Vector3 gyro = gyro_degrees * (M_PI/180.0f);
 
 	//computre the estimated gravity vector from the quaternion
 	float data[] = {2*(q.q1*q.q3 - q.q0*q.q2), 2*(q.q0*q.q1 + q.q2*q.q3), 1 - 2*q.q1*q.q1 - 2*q.q2*q.q2};
 	Vector3 v(data);
 
-	normalize(acc);
+	Vector3 acc_n = normalize(acc);
 	//get the incremental error by cross product between measured and estimated
-	Vector3 delta_error = cross(acc, v);
+	Vector3 delta_error = cross(acc_n, v);
 
 	//compute the whole orientation error
 	error = error + delta_error * dt;
@@ -530,29 +494,27 @@ EulerAngles Mahony::update(Vector3 &acc, Vector3 &gyro_degrees, float dt) {
 
 	Quaternion qdot = quatKinematicsRates_BodyRates(q, gyro);
 	q = integrateQuat(q, qdot, dt);
-
-	EulerAngles angles = quat2EulerAngles(q);
-	//convert to degrees back
-	angles.phi *= (180.0f/M_PI);
-	angles.theta *= (180.0f/M_PI);
-	angles.psi *= (180.0f/M_PI);
-
-	return angles;
+	
+	return q;
 }
 
-EulerAngles Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, float dt) {
+void Madgwick::init(MPU_t &mpu) {
+}
+
+Quaternion Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, float dt) {
 	// convert gyro degrees measurements to rads
 	Vector3 gyro = gyro_degrees * (M_PI/180.0f);
 	// normalize acc
-	normalize(acc);
+	Vector3 acc_n = normalize(acc);
 
 	//computre the estimated gravity vector from the quaternion
 	// estimated g = q' * g * q where g = (0, 0, 0, 1) I mean pointing downward 
 	Vector3 v(2*(q.q1*q.q3 - q.q0*q.q2), 2*(q.q0*q.q1 + q.q2*q.q3), 1 - 2*q.q1*q.q1 - 2*q.q2*q.q2);
+	gravity = v;
 
 	// error is the difference between the estimated gravity vector when rotated
 	// by quaternion subtracted by the actual vector of accelerometer
-	Vector3 F_g = v - acc;
+	Vector3 F_g = v - acc_n;
 
 	//define the jacobian
 	float J_g[3][4] = { 
@@ -582,22 +544,18 @@ EulerAngles Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, float dt) {
 
 	q = integrateQuat(q, qdot, dt);
 
-	EulerAngles angles = quat2EulerAngles(q);
-	//convert to degrees back
-	angles.phi *= (180.0f/M_PI);
-	angles.theta *= (180.0f/M_PI);
-	angles.psi *= (180.0f/M_PI);
+	// removeGravity(acc);
 
-	return angles;
+	return q;
 }
 
-EulerAngles Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, float dt) {
-	Quaternion q_t = conjugate(q);
-	Quaternion m(mag);
+Quaternion Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, float dt) {
+	// normalize acc, mag
+	Vector3 acc_n = normalize(acc);
+	Vector3 mag_n = normalize(mag);
 
-	// normalize acc
-	normalize(acc);
-	normalize(mag);
+	Quaternion q_t = conjugate(q);
+	Quaternion m(mag_n);
 
 	// convert gyro degrees measurements to rads
 	Vector3 gyro = gyro_degrees * (M_PI/180.0f);
@@ -608,7 +566,7 @@ EulerAngles Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, 
 
 	// error is the difference between the estimated gravity vector when rotated
 	// by quaternion subtracted by the actual vector of accelerometer
-	Vector3 F_g = vg - acc;
+	Vector3 F_g = vg - acc_n;
 
 	//define the jacobian
 	float J_g[3][4] = { 
@@ -621,7 +579,7 @@ EulerAngles Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, 
 	// compute estimated north mag vector from quaternion
 	// estimated north = q * mag * q'
 	Quaternion ht = q * m * q_t;
-	Vector3 bt(sqrt(ht.q1*ht.q1 + ht.q2*ht.q2), 0, ht.q3);
+	Vector3 bt(sqrtf(ht.q1*ht.q1 + ht.q2*ht.q2), 0, ht.q3);
 	Vector3 vb(
 		bt.x*(1 - 2*q.qy*q.qy - 2*q.qz*q.qz) + bt.z*(2*q.qx*q.qz - 2*q.qw*q.qy),
 		bt.x*(2*q.qx*q.qy - 2*q.qw*q.qz) + bt.z*(2*q.qw*q.qx + 2*q.qy*q.qz),
@@ -661,19 +619,21 @@ EulerAngles Madgwick::update(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, 
 
 	q = integrateQuat(q, qdot, dt);
 
-	EulerAngles angles = quat2EulerAngles(q);
-	//convert to degrees back
-	angles.phi *= (180.0f/M_PI);
-	angles.theta *= (180.0f/M_PI);
-	angles.psi *= (180.0f/M_PI);
+	// removeGravity(acc);
 
-	return angles;
+	// EulerAngles angles = quat2EulerAngles(q);
+	// //convert to degrees back
+	// angles.phi *= (180.0f/M_PI);
+	// angles.theta *= (180.0f/M_PI);
+	// angles.psi *= (180.0f/M_PI);
+
+	return q;
 }
 
 
 // AHRS algorithm update
 
-EulerAngles Madgwick::MadgwickQuaternionUpdate(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, float deltat, bool withOffset) {
+Quaternion Madgwick::MadgwickQuaternionUpdate(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, float deltat) {
 	// convert gyro degrees measurements to rads
 	Vector3 gyro = gyro_degrees * (M_PI/180.0f);
 
@@ -712,7 +672,7 @@ EulerAngles Madgwick::MadgwickQuaternionUpdate(Vector3 &acc, Vector3 &gyro_degre
     float q3q4 = q3 * q4;
     float q4q4 = q4 * q4;
 
-    // Normalise accelerometer measurement
+    // Normalise mpu.accelerometer measurement
     norm = 1.0f / sqrtf(ax * ax + ay * ay + az * az);
     ax *= norm;
     ay *= norm;
@@ -767,14 +727,148 @@ EulerAngles Madgwick::MadgwickQuaternionUpdate(Vector3 &acc, Vector3 &gyro_degre
     q.q2 = q3 * norm;
     q.q3 = q4 * norm;
 
-	if(withOffset){
-		q = offset_q * q * conjugate(offset_q);
-	}
-	EulerAngles angles = quat2EulerAngles(q);
-	//convert to degrees back
-	angles.phi *= (180.0f/M_PIf);
-	angles.theta *= (180.0f/M_PIf);
-	angles.psi *= (180.0f/M_PIf);
+	// removeGravity(mpu.acc);
 
-	return angles;
+	// EulerAngles angles = quat2EulerAngles(q);
+	// //convert to degrees back
+	// angles.phi *= (180.0f/M_PIf);
+	// angles.theta *= (180.0f/M_PIf);
+	// angles.psi *= (180.0f/M_PIf);
+
+	return q;
 }
+
+void Madgwick::removeGravity(Vector3 &acc) { 
+	// estimated g = q' * g * q where g = (0, 0, 0, 1) I mean pointing downward 
+	Vector3 v(2*(q.q1*q.q3 - q.q0*q.q2), 2*(q.q0*q.q1 + q.q2*q.q3), 1 - 2*q.q1*q.q1 - 2*q.q2*q.q2);
+	gravity = v;
+	acc = acc - gravity;
+}
+
+void MPU_t::printValues() {
+	string s;
+	s.append(Serial.floatToStr(acc.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(acc.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(acc.data[2]));
+	s.append("\t");
+	s.append(Serial.floatToStr(gyro.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(gyro.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(gyro.data[2]));
+	s.append("\t");
+	s.append(Serial.floatToStr(mag.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(mag.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(mag.data[2]));
+	s.append("\t");
+	s.append(Serial.floatToStr(angles.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(angles.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(angles.data[2]));
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printAcc(){
+	string s;
+	s.append(Serial.floatToStr(acc.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(acc.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(acc.data[2]));
+	s.append("\t");
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printGyro(){
+	string s;
+	s.append(Serial.floatToStr(gyro.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(gyro.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(gyro.data[2]));
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printMag(){
+	string s;
+	s.append(Serial.floatToStr(mag.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(mag.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(mag.data[2]));
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printAngles(){
+	string s;
+	s.append(Serial.floatToStr(angles.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(angles.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(angles.data[2]));
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printAccG() {
+	string s;
+	s.append(Serial.floatToStr(avgAcc.data[0]*981));
+	s.append("\t");
+	s.append(Serial.floatToStr(avgAcc.data[1]*981));
+	s.append("\t");
+	s.append(Serial.floatToStr(avgAcc.data[2]*981));
+	s.append("\t");
+	Serial.printStr((char*) s.c_str());
+}
+
+void MPU_t::printVelocity(){
+	string s;
+	s.append(Serial.floatToStr(velocity.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(velocity.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(velocity.data[2]));
+	s.append("\t");
+	Serial.printStr((char*) s.c_str());
+}
+void MPU_t::printPosition(){
+	string s;
+	s.append(Serial.floatToStr(position.data[0]));
+	s.append("\t");
+	s.append(Serial.floatToStr(position.data[1]));
+	s.append("\t");
+	s.append(Serial.floatToStr(position.data[2]));
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printQuaternion() {
+	string s;
+	s.append(Serial.floatToStr(q.qw));
+	s.append("\t");
+	s.append(Serial.floatToStr(q.qx));
+	s.append("\t");
+	s.append(Serial.floatToStr(q.qy));
+	s.append("\t");
+	s.append(Serial.floatToStr(q.qz));
+	Serial.printStrln((char*) s.c_str());
+}
+
+void MPU_t::printErrors() {
+	Serial.printFloat(accError.data[0]);
+	Serial.printStr(",\t");
+	Serial.printFloat(accError.data[1]);
+	Serial.printStr(",\t");
+	Serial.printFloat(accError.data[2]);
+	Serial.printStr(",\t\t");
+	Serial.printFloat(gyroError.data[0]);
+	Serial.printStr(",\t");
+	Serial.printFloat(gyroError.data[1]);
+	Serial.printStr(",\t");
+	Serial.printFloat(gyroError.data[2]);
+	Serial.sendByte('\n');
+}
+

@@ -50,7 +50,8 @@ namespace AML {
 	Vector3 operator/(float lhs, const Vector3& rhs);
 
 	float invSqrt(float num);
-	void normalize(Vector3& v);
+	Vector3 normalize(Vector3& v);
+	//void normalize(Vector3& v);
 	float norm(const Vector3& v);
 	Vector3 unit(const Vector3& v);
 	Vector3 cross(const Vector3& lhs, const Vector3& rhs);

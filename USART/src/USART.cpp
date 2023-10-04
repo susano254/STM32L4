@@ -130,10 +130,10 @@ void VirtualPort::begin(int baudRate){
 	RCC_USART2_CLK_ENABLE();
 	//select clock for the peripheral clock
 	RCC->CCIPR &= ~(3 << 2);
-	RCC->CCIPR |= (HSI16 << 2);
+	RCC->CCIPR |= (PCLK << 2);
 
 	//write the baudrate 
-	baudRate = 16000000/baudRate;
+	baudRate = 80000000/baudRate;
 	USART2->BRR = baudRate;
 
 	//disable Ovverrun

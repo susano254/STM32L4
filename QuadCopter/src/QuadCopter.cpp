@@ -8,18 +8,39 @@
 #define MOTOR2 PA8
 #define MOTOR3 PA3
 
-uint32_t micros = 0;
-
-// #define direct 10
 using namespace global;
 
-GPIO_TypeDef *GPIOAA_Base = GPIOA;
-TIM_TypeDef *TIM1_Base = TIM1;
-TIM_TypeDef *TIM6_Base = TIM6;
+uint32_t millis;
+uint32_t prev_millis;
+uint32_t tim6_overflows = 0;
+// uint32_t tim6_reload = 40000-1;
+uint32_t tim6_prev_millis = 0;
+uint32_t timX_millis = 0;
+uint32_t timX_prev_millis = 0;
+
+// TIM_TypeDef *TIM6_Base = TIM6;
+// DWT_Type *DWT_Base = DWT;
+// SCB_Type *SCB_Base = SCB;
+// CoreDebug_Type *CoreDebug_Base = CoreDebug;
+
+// struct Micros {
+// 	uint32_t overflows;
+// 	uint16_t ticks;
+// 
+// 	Micros(uint16_t ticks, uint32_t overflows) : overflows(overflows), ticks(ticks) {}
+// };
+// 
+// Micros get_micros(){
+// 	return Micros(TIM6->CNT, tim6_overflows);
+// }
+// 
+// float getdt(Micros cur_micros, Micros prev_micros){
+// 	return  (cur_micros.ticks- prev_micros.ticks)*0.000001f + (cur_micros.overflows-prev_micros.overflows)*0.065535f;
+// }
 
 void delay(uint32_t milliseconds){
-	uint32_t value = milliseconds*8000;
-	for(int i = 0; i < value; i++);
+	uint32_t startmillis = Systick.getMillis();
+	while((Systick.getMillis()-startmillis) < milliseconds);
 }
 
 int map(int value, int oldMin, int oldMax, int newMin, int newMax){
@@ -50,6 +71,7 @@ Motor::Motor(TIMER *timer, channel_conf_t *channel, uint32_t min, uint32_t max) 
 }
 
 void Motor::setThrust(float thrust){
+	if(thrust < 0) thrust = 0;
 	// thrust is a value between 0 and 100
 	// you should map it to be a value between min and max
 	uint32_t temp = map(thrust, 0, 100, this->min, this->max);
@@ -59,8 +81,10 @@ void Motor::setThrust(float thrust){
 }
 
 void QuadCopter::init_pins(){
-	RCC_GPIOA_CLK_ENABLE();
 	gpio_pin_conf_t pin;
+
+	RCC_GPIOA_CLK_ENABLE();
+
 	pin.mode = GPIO_PIN_ALT_FUN_MODE;
 	pin.op_type = GPIO_PIN_OP_TYPE_PUSH_PULL;
 	pin.pupd = GPIO_PIN_PUPD_NO_PUPD;
@@ -79,38 +103,47 @@ void QuadCopter::init_pins(){
 }
 
 void QuadCopter::init_timer(){
-	// TIMER tim2;
-	TIMx_init_t tim2_init, tim1_init, tim6_init;
+	TIMx_init_t tim2_init, tim1_init, tim6_init, timX_init;
 	tim2_init.instance = TIM2;					// choose timer2
 	tim2_init.direction = TIM_DIR_UPCOUNT;		// up count direction
 	tim2_init.preload = TIM_CR1_ARPE;			// Auto reload preload enable
-	tim2_init.prescaler = 0;					// no prescaler it's getting the full 80Mhz of the controller clock
-	tim2_init.auto_reload = 1600000;			// acheiving a period of 20ms for 50Hz
+	tim2_init.prescaler = 80-1;					// no prescaler it's getting the full 80Mhz of the controller clock
+	tim2_init.auto_reload = 16650-1;			// acheiving a period of 16.77ms for 60Hz
 
-	tim1_init.instance = TIM1;					// choose timer2
-	tim1_init.direction = TIM_DIR_UPCOUNT;		// up count direction
-	tim1_init.preload = TIM_CR1_ARPE;			// Auto reload preload enable
-	tim1_init.prescaler = 1600-1;					// no prescaler it's getting the full 80Mhz of the controller clock
-	tim1_init.auto_reload = 1000;			// acheiving a period of 20ms for 50Hz
+	tim1_init.instance = TIM1;
+	tim1_init.direction = TIM_DIR_UPCOUNT;
+	tim1_init.preload = TIM_CR1_ARPE;
+	tim1_init.prescaler = 80-1;
+	tim1_init.auto_reload = 16650-1;
 
-	tim6_init.instance = TIM6;					// choose timer2
-	tim6_init.direction = TIM_DIR_UPCOUNT;		// up count direction
-	tim6_init.preload = TIM_CR1_ARPE;			// Auto reload preload enable
-	tim6_init.prescaler = 0;					// no prescaler it's getting the full 80Mhz of the controller clock
-	tim6_init.auto_reload = 80;					// acheiving a period of 20ms for 50Hz
+	// tim6_init.instance = TIM6;				
+	// tim6_init.direction = TIM_DIR_UPCOUNT;
+	// tim6_init.preload = TIM_CR1_ARPE;	
+	// tim6_init.prescaler = 79;
+	// tim6_init.auto_reload = -1;
 
-	RCC_TIM1_CLK_ENABLE();						// enable clock first as usual
-	RCC_TIM2_CLK_ENABLE();						// enable clock first as usual
-	RCC_TIM6_CLK_ENABLE();
+	// timX_init.instance = TIM15;				
+	// timX_init.direction = TIM_DIR_UPCOUNT;
+	// timX_init.preload = TIM_CR1_ARPE;	
+	// timX_init.prescaler = 0;
+	// timX_init.auto_reload = 80-1;
+
+	RCC_TIM1_CLK_ENABLE();							// enable clock first as usual
+	RCC_TIM2_CLK_ENABLE();							// enable clock first as usual
+	// RCC_TIM6_CLK_ENABLE();
+	// RCC_TIM15_CLK_ENABLE();
+
 	timer1.init(&tim1_init);
-	timer2.init(&tim2_init);		// init the tim and pass the init struct with the parameters
-	timer6.init(&tim6_init);
-	Nvic.enableInterrupt(TIM6_DAC_IRQn);		   // enable interrupt (not necessary for now we not using the ISR yet)
-	TIM6->DIER |= TIM_DIER_UIE;
+	timer2.init(&tim2_init);			// init the tim and pass the init struct with the parameters
+
+	// timer6.init(&tim6_init);
+
+	// Nvic.enableInterrupt(TIM6_DAC_IRQn);		   // enable interrupt (not necessary for now we not using the ISR yet)
+	// TIM6->DIER |= TIM_DIER_UIE;
 }
 
 void QuadCopter::init_channels(){
-	channel_conf_t  channel;					// for tim2 enable the first 4 channel to output a pwm signal
+	channel_conf_t  channel;						// for tim2 enable the first 4 channel to output a pwm signal
 	channel.io = CHANNEL_IO_OUTPUT;
 	channel.polarity = CHANNEL_POLARITY_HIGH;
 	channel.capture_preload_enable = 0;
@@ -120,16 +153,16 @@ void QuadCopter::init_channels(){
 	// this range values are based on tests of escs ranges since I got ones 
 	// that don't support programming mode of range calibration :(
 	channel.no = 1;
-	motors.push_back(Motor(&timer2, &channel, 60000, 180000));
+	motors.push_back(Motor(&timer2, &channel, 750, 2000));
 	timer2.channel_init(timer2.init_struct.instance, &channel);
 	channel.no = 2;
-	motors.push_back(Motor(&timer2, &channel, 84000, 160000));
+	motors.push_back(Motor(&timer2, &channel, 1150, 2000));
 	timer2.channel_init(timer2.init_struct.instance, &channel);
 	channel.no = 1;
-	motors.push_back(Motor(&timer1, &channel, 51, 100));
+	motors.push_back(Motor(&timer1, &channel, 1050, 2000));
 	timer1.channel_init(timer1.init_struct.instance, &channel);
 	channel.no = 4;
-	motors.push_back(Motor(&timer2, &channel, 59900, 180000));
+	motors.push_back(Motor(&timer2, &channel, 750, 2000));
 	timer2.channel_init(timer2.init_struct.instance, &channel);
 	
 	timer1.timer_update();
@@ -146,9 +179,6 @@ void QuadCopter::init_escs(){
 }
 
 void QuadCopter::init_motors(){
-	//init timer to calculate for dt
-	Systick.Init();
-
 	//set the pins to alternate function mode for the timer output
 	init_pins();
 	//init the timer
@@ -181,14 +211,12 @@ void QuadCopter::init_controllers() {
 void QuadCopter::Init(){
   	init_motors();
 
-	direct = 10;
+	direct = 5;
 	Update();
 
 	mpu.Init();
 	mpu.calibrate();
-	// mpu.printValues();
-	// mpu.printErrors();
-	// mpu.printAngles();
+
 	nrf.init(CE_PIN, CSN_PIN);
 	nrf.setRxMode(nrf.defaultAddr, 0);
 
@@ -205,25 +233,44 @@ void QuadCopter::NRF_Read(bool print){
 	}
 }
 
-void QuadCopter::IMU_Read(bool print){
+void QuadCopter::IMU_Update(Madgwick &madgwick, bool print){
+	static ZeroVelocityUpdate gyroFilter(5, Vector3(3.0f, 3.0f, 3.0f));
+	static uint32_t prev_micros = 0;
+
 	mpu.readAcc();
 	mpu.readGyro();
 	mpu.readMag();
-	dt = Systick.getDeltaT();
-	//mpu.calculateAngles(dt);
-	// mpu.angles = mahony.update(mpu.acc, mpu.gyro, dt);
-	// mpu.angles = madgwick.MadgwickQuaternionUpdate(mpu.acc, mpu.gyro, mpu.mag, dt);
+
+	dt = System.getDeltaT(prev_micros);
+	prev_micros = System.getMicros();
+
+
+
+	mpu.gyro = gyroFilter.update(mpu.gyro);
+	// mpu.angles = madgwick.update(mpu.acc, mpu.gyro, dt_l);
+
+	// mpu.calculateAngles(dt);
+	mpu.q = madgwick.MadgwickQuaternionUpdate(mpu.acc, mpu.gyro, mpu.mag, dt);
+	mpu.angles = quat2EulerAngles(mpu.q);
+	//convert to degrees back
+	mpu.angles.phi *= (180.0f/M_PIf);
+	mpu.angles.theta *= (180.0f/M_PIf);
+	mpu.angles.psi *= (180.0f/M_PIf);
+
 	if(print)
 		mpu.printValues();
 }
 
 void QuadCopter::Control() {
-	dt = (micros - prev_micros) * 0.000001;
-	prev_micros = micros;
+	static uint32_t prev_micros = 0;
+
+	dt = System.getDeltaT(prev_micros);
+	prev_micros = System.getMicros();
+
 	controllers.Roll.run(desired_roll, mpu.angles.roll, dt);
-	// Pitch_Controller.run(0, mpu.pitch, dt);
-	// Yaw_Controller.run(0, mpu.yaw, dt);
-	// Altitude_Controller.run(1, mpu.altitude, dt);
+	// controllers.Pitch.run(desired_pitch, mpu.angles.pitch, dt);
+	// controllers.Yaw.run(desired_yaw, mpu.angles.yaw, dt);
+	// controllers.Altitude.run(1, mpu.altitude, dt);)
 	Update();
 }
 
@@ -234,15 +281,13 @@ void QuadCopter::Update() {
 	motors[3].setThrust(direct + controllers.Roll.command);
 }
 
-extern "C" {
+// extern "C" {
+// 	void TIM6_DAC_IRQHandler(){
+// 		tim6_overflows++;
+// 
+// 
+// 		Nvic.clearPending(TIM6_DAC_IRQn);
+// 		TIM6->SR &= ~TIM_SR_UIF;
+// 	}
+// }
 
-void TIM6_DAC_IRQHandler(){
-	micros++;
-
-
-	Nvic.clearPending(TIM6_DAC_IRQn);
-	TIM6->SR &= ~TIM_SR_UIF;
-}
-
-
-}

@@ -1,3 +1,6 @@
+#ifndef ADC_H
+#define ADC_H
+
 #include <stm32l432kc.h> 
 
 /******************************************************************************/
@@ -1039,6 +1042,10 @@ typedef struct {
 extern "C" {
 #endif                                      
 	void ADCInit(ADCx_init_t *init_struct);
+	uint32_t analogRead(ADC_TypeDef* ADCx, uint8_t channelNumber);
 #ifdef __cplusplus
 }
 #endif                                      
+
+
+#endif

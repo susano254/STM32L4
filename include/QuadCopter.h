@@ -28,9 +28,6 @@ struct Controller {
 	float error, prev_error, filtered_de;
 	float propotional, integral, derivative;
 	float command;
-	float temp_dt = 0;
-	// float dt;
-	int x = 0;
 
 	explicit Controller(){
 		error = 0;
@@ -54,52 +51,46 @@ struct Controller {
 	void calc_integral(float dt){
 		integral += ki * error * dt;
 	}
-	void calc_derivative(float dt){
-		if(temp_dt < 1) { 
-			temp_dt += dt;
-			x++;
+	void calc_derivative(float dt, bool filter){
+		float change = error - prev_error;
+		if(filter){
+			float alpha = 0.98f;
+			filtered_de =  alpha * (change / dt) + (1-alpha) * filtered_de;
+			derivative = kd*filtered_de;
 		}
 		else {
-			temp_dt = 0;
-			x = 0;
+			derivative = kd*(change/dt);
 		}
-		float change = error - prev_error;
-		// float alpha = 0.99;
-		// filtered_de = alpha * filtered_de + (1-alpha) * change / dt;
-		// derivative = kd*filtered_de;
-		derivative = kd*(change/dt);
 		prev_error = error;
 	}
 	void run(float desired, float current, float dt){
 		calc_error(desired, current);
 		calc_proportional();
 		calc_integral(dt);
-		calc_derivative(dt);
+		calc_derivative(dt, true);
 		command = propotional + integral + derivative;
 	}
 };
 
 struct QuadCopter {
-	TIMER timer1, timer2, timer6;
-	uint32_t prev_micros = 0;
+	TIMER timer1, timer2, timer6, timerX;
 	vector<Motor> motors;
 	MPU_t mpu;
-	Madgwick madgwick;
 	NRF24 nrf;
 	float dt;
 	float desired_roll = 0, desired_pitch = 0, desired_yaw = 0;
-
 	float direct = 0;
+
 	struct {
 		Controller Roll, Pitch, Yaw, Altitude;
 	} controllers;
 
 
-	QuadCopter() : controllers{ Controller(), Controller(), Controller(), Controller() }, madgwick(1.5) {}
+	QuadCopter() : controllers{ Controller(), Controller(), Controller(), Controller() } {}
 	void Init();
 	void NRF_Read(bool);
 	// void NRF_Send();
-	void IMU_Read(bool);
+	void IMU_Update(Madgwick&, bool);
 	void Control();
 
 	private:

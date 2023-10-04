@@ -2,6 +2,14 @@
 #include <RCC.h>
 
 
+void start_conversion(ADC_TypeDef *ADCx){
+	ADCx->CR |= ADC_CR_ADSTART;
+}
+
+void poll_end_of_conversion(ADC_TypeDef *ADCx){
+	while( !(ADCx->ISR & ADC_ISR_EOC) );
+}
+
 void disable_deep_pwd(ADC_TypeDef *ADCx){
 	ADCx->CR &= ~ADC_CR_DEEPPWD;
 }
@@ -32,6 +40,36 @@ void disable_adc(ADC_TypeDef* ADCx){
 	while( (ADCx->CR & ADC_CR_ADDIS) ); 
 }
 
+void set_conversions(uint8_t numOfConversions){
+
+}
+
+void set_regular_channels_sequence(adc_channel_conf_t* channels, uint8_t numOfChannels){
+
+}
+
+void set_channels_sampling_time(adc_channel_conf_t* channels, uint8_t numOfChannels){
+
+}
+
+
+void readChannels(adc_channel_conf_t *channels, uint8_t numOfChannels){
+
+}
+
+uint32_t analogRead(ADC_TypeDef* ADCx, uint8_t channelNumber){
+	//one conversion
+	ADCx->SQR1 = 0;
+
+	ADCx->SQR1 |= channelNumber << ADC_SQR1_SQ1_Pos;
+
+	start_conversion(ADCx);
+
+	poll_end_of_conversion(ADCx);
+
+	return ADCx->DR;
+}
+
 
 
 void ADCInit(ADCx_init_t *init_struct){
@@ -48,18 +86,10 @@ void ADCInit(ADCx_init_t *init_struct){
 	//(since clock is 80mhz) and we want to wait for 50us we need to count 4000
 	for(int i = 0; i < 4000; i++);			//delay 50us  
 
-	//one conversion
-	init_struct->instance->SQR1 &= ~ADC_SQR1_L;
-	init_struct->instance->SQR1 |= init_struct->numOfConversions - 1;
-	//first and only channel to be channel 15
-	init_struct->instance->SQR1 |= 15 << ADC_SQR1_SQ1_Pos;
 
-	// //set number of conversions for the adc
-	// set_conversions(init_struct->numOfConversions);
-	// //set channels sequence
-	// set_regular_channels_sequence(init_struct->channels, init_struct->numOfChannels);
-	// //set channels sampling time
-	// set_channels_sampling_time(init_struct->channels, init_struct->numOfChannels);
+
+	RCC_GPIOA_CLK_ENABLE();
+
 	//finally enable the adc
 	enable_adc(init_struct->instance);
 }

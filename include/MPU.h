@@ -2,13 +2,14 @@
 #define 	MPU_H
 
 #include <stm32l432kc.h>
+#include <vector>
 #include <AML/AML.h>
 
 #define MPU 		0x68
 #define MAG 		0x0C
 
 
-//#define ACC_FACT	16384.0f	
+// #define ACC_FACT	16384.0f	
 //#define ACC_FACT	8192.0f	
 #define ACC_FACT	4096.0f	
 //#define ACC_FACT	2048.0f	
@@ -21,12 +22,21 @@
 #define MAG_FACT	6.6667f
 #define CAL_FACT	1000
 
+#define M_PIf ((float) M_PI)
+#define sqrtf(x) (1.0f / invSqrt(x))
+
 using namespace AML;
+using namespace std;
 
 struct MPU_t {
 	bool calibrated = true;
+	Quaternion q;
 
-	Vector3 acc;
+	Vector3 gravity;
+	Vector3 velocity, prev_velocity;
+	Vector3 position, prev_position;
+
+	Vector3 acc, avgAcc;
 	Vector3 accError;
 
 	Vector3 gyro;
@@ -58,7 +68,14 @@ struct MPU_t {
 	void calibrateAcc();
 	void calibrateGyro();
 	void calibrateMag();
+	void update();
+
+
+	//helper
+	void ZeroVelocityUpdate();
+	void removeGravity(Vector3 &acc);
 	void calculateAngles(float dt);
+	void calculatePosition(float dt);
 
 	//prints
 	void printValues();
@@ -67,9 +84,12 @@ struct MPU_t {
 	void printGyro();
 	void printMag();
 	void printAngles();
+	void printAccG();
+	void printQuaternion();
+	void printVelocity();
+	void printPosition();
 
 	private:
-		void calibrateAccAxis(uint8_t axis_id);
 		void calibrateAccX();
 		void calibrateAccY();
 		void calibrateAccZ();
@@ -77,29 +97,71 @@ struct MPU_t {
 
 
 struct Madgwick {
-	float beta;
+	float beta, initBeta;
 	Quaternion q, offset_q;
 	EulerAngles offset_angles;
-	Vector3 error;
+	Vector3 gravity, error;
 
 	Madgwick() : beta(0.1f), q(1, 0, 0, 0), offset_q(1, 0, 0, 0), error(0.0f) {}
 	Madgwick(float beta) : beta(beta), q(1, 0, 0, 0), offset_q(1, 0, 0, 0), error(0.0f) {}
-	EulerAngles update(Vector3 &acc, Vector3 &gyro, float dt);
-	EulerAngles update(Vector3 &acc, Vector3 &gyro, Vector3 &mag, float dt);
-	EulerAngles MadgwickQuaternionUpdate(Vector3 &acc, Vector3 &gyro_degrees, Vector3 &mag, float deltat, bool withOffset);
-	void printQuaternion();
+	void init(MPU_t &mpu);
+	Quaternion update(Vector3 &acc, Vector3 &gyro, float dt);
+	Quaternion update(Vector3 &acc, Vector3 &gyro, Vector3 &mag, float dt);
+	Quaternion MadgwickQuaternionUpdate(Vector3 &acc, Vector3 &gyro, Vector3 &mag, float dt);
+	// void MadgwickQuaternionUpdate(MPU_t &mpu, float deltat);
+	void removeGravity(Vector3 &acc);
 };
+
 
 struct Mahony {
 	float kp, ki;
 	Quaternion q;
-	Vector3 error;
+	Vector3 gravity, error;
 
 	Mahony() : kp(0.0f), ki(0.0f), q(1, 0, 0, 0), error(0.0f) {}
 	Mahony(float kp, float ki) : kp(kp), ki(ki), q(1, 0, 0, 0), error(0.0f) {}
-	EulerAngles update(Vector3 &acc, Vector3 &gyro, float dt);
-	EulerAngles update(Vector3 &acc, Vector3 &gyro, Vector3 &mag, float dt);
+	Quaternion update(Vector3 &acc, Vector3 &gyro, float dt);
+	Quaternion update(Vector3 &acc, Vector3 &gyro, Vector3 &mag, float dt);
 	void printQuaternion();
+};
+
+struct FIFO {
+	vector<Vector3> buffer;
+	int size;
+
+	FIFO() : size(10) {}
+	FIFO(int size) : size(size) {}
+
+	Vector3 getAverage(){
+		Vector3 avg;
+		for(int i = 0; i < buffer.size(); i++){
+			avg += buffer[i];
+		}
+		avg /= (float) size;
+		return avg;
+	}
+
+	void push_back(Vector3 v){
+		buffer.push_back(v);
+		if(buffer.size() > size){
+			buffer.erase(buffer.begin());
+		}
+	}
+};
+
+struct ZeroVelocityUpdate {
+	FIFO fifo;
+	Vector3 th;
+
+	ZeroVelocityUpdate(int n){
+		fifo = FIFO(n);
+	}
+	ZeroVelocityUpdate(int n, Vector3 th){
+		fifo = FIFO(n);
+		this->th = th;
+	}
+	Vector3 update(Vector3 &v, Vector3 threshold);
+	Vector3 update(Vector3 &v);
 };
 
 // #ifdef __cplusplus
