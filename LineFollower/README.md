@@ -1,3 +1,3 @@
-# QuadCopter drone using the baremetal drivers
+# Line Follower Robot using the baremetal drivers
 
-- a quadcopter with 10-dof mpu9255 and bmp280 nrf remote control and both quaternion and euler angles filters
+- a Line Follower robot uisng 8 IR sensors and an IMU along with PID algorithm to control two differential steered motors 
