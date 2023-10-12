@@ -154,31 +154,22 @@ void LineFollower::readIrSensors() {
 void LineFollower::control() {
 	static uint32_t prev_micros = 0;
 
-	// if(ir_binary[0] == 1 && ir_binary[7] == 0){
-	// 	Motor1.setThrust(0);
-	// 	Motor2.setThrust(70);
-	// }
-	// else if(ir_binary[7] == 1 && ir_binary[0] == 0){
-	// 	Motor1.setThrust(70);
-	// 	Motor2.setThrust(0);
-	// }
-	// else {
-		float weightedSum = 0;
-		int sum = 0;
-		for(int i = 0; i < n; i++){
-			if(ir_binary[i]){
-				weightedSum += ir_values[i] * weights[i];
-				sum += ir_values[i];
-			}
+	float weightedSum = 0;
+	int sum = 0;
+	for(int i = 0; i < n; i++){
+		if(ir_binary[i]){
+			weightedSum += ir_values[i] * weights[i];
+			sum += ir_values[i];
 		}
-		if(sum != 0)
-			pid.error = weightedSum / sum;
-		dt = System.getDeltaT(prev_micros);
-		prev_micros = System.getMicros();
+	}
+	if(sum != 0)
+		pid.error = weightedSum / sum;
+	dt = System.getDeltaT(prev_micros);
+	prev_micros = System.getMicros();
 
-		pid.run(-1, -1, dt);
+	pid.run(-1, -1, dt);
 
-		update();
+	update();
 	// }
 
 }
